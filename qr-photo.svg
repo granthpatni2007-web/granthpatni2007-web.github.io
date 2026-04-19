@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Sample QR payment image</title>
+  <desc id="desc">Placeholder QR-style payment image for website checkout.</desc>
+  <rect width="240" height="240" rx="28" fill="#ffffff"/>
+  <rect x="24" y="24" width="192" height="192" rx="20" fill="#ffffff" stroke="#111827" stroke-width="6"/>
+  <rect x="40" y="40" width="44" height="44" rx="8" fill="#111827"/>
+  <rect x="52" y="52" width="20" height="20" rx="4" fill="#ffffff"/>
+  <rect x="156" y="40" width="44" height="44" rx="8" fill="#111827"/>
+  <rect x="168" y="52" width="20" height="20" rx="4" fill="#ffffff"/>
+  <rect x="40" y="156" width="44" height="44" rx="8" fill="#111827"/>
+  <rect x="52" y="168" width="20" height="20" rx="4" fill="#ffffff"/>
+  <rect x="108" y="48" width="12" height="12" fill="#111827"/>
+  <rect x="126" y="48" width="12" height="12" fill="#111827"/>
+  <rect x="96" y="66" width="12" height="12" fill="#111827"/>
+  <rect x="120" y="66" width="12" height="12" fill="#111827"/>
+  <rect x="108" y="84" width="12" height="12" fill="#111827"/>
+  <rect x="138" y="84" width="12" height="12" fill="#111827"/>
+  <rect x="96" y="102" width="12" height="12" fill="#111827"/>
+  <rect x="120" y="102" width="12" height="12" fill="#111827"/>
+  <rect x="144" y="102" width="12" height="12" fill="#111827"/>
+  <rect x="96" y="120" width="12" height="12" fill="#111827"/>
+  <rect x="114" y="120" width="12" height="12" fill="#111827"/>
+  <rect x="138" y="120" width="12" height="12" fill="#111827"/>
+  <rect x="156" y="120" width="12" height="12" fill="#111827"/>
+  <rect x="84" y="138" width="12" height="12" fill="#111827"/>
+  <rect x="108" y="138" width="12" height="12" fill="#111827"/>
+  <rect x="126" y="138" width="12" height="12" fill="#111827"/>
+  <rect x="150" y="138" width="12" height="12" fill="#111827"/>
+  <rect x="96" y="156" width="12" height="12" fill="#111827"/>
+  <rect x="120" y="156" width="12" height="12" fill="#111827"/>
+  <rect x="144" y="156" width="12" height="12" fill="#111827"/>
+  <rect x="168" y="156" width="12" height="12" fill="#111827"/>
+  <rect x="108" y="174" width="12" height="12" fill="#111827"/>
+  <rect x="132" y="174" width="12" height="12" fill="#111827"/>
+  <rect x="156" y="174" width="12" height="12" fill="#111827"/>
+  <text x="120" y="226" font-family="Arial, sans-serif" font-size="16" font-weight="700" text-anchor="middle" fill="#111827">SCAN TO PAY</text>
+</svg>

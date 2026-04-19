@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Antarmana Sweets &amp; Snacks | Owner Dashboard</title>
+    <meta name="application-name" content="Antarmana Sweets &amp; Snacks" />
+    <meta
+      name="description"
+      content="Owner dashboard for reviewing customer orders, delivery locations, and payment details."
+    />
+    <meta
+      name="robots"
+      content="noindex, nofollow, noarchive, nosnippet, noimageindex"
+    />
+    <meta
+      property="og:site_name"
+      content="Antarmana Sweets &amp; Snacks"
+    />
+    <link
+      rel="canonical"
+      href="https://granthpatni2007-web.github.io/owner.html"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="owner.css" />
+  </head>
+  <body class="owner-body">
+    <section class="owner-lock-shell" id="ownerLockScreen">
+      <div class="owner-lock-card">
+        <span class="owner-kicker">Owner only</span>
+        <h1>Owner dashboard access</h1>
+        <p class="owner-lock-copy">
+          Enter the owner passcode to open the dashboard and review orders,
+          payment details, and delivery locations.
+        </p>
+        <p class="owner-site-name">Website name: Antarmana Sweets &amp; Snacks</p>
+
+        <form class="owner-lock-form" id="ownerUnlockForm">
+          <label class="owner-lock-field" for="ownerPasscode">
+            <span>Passcode</span>
+            <input
+              id="ownerPasscode"
+              type="password"
+              placeholder="Enter owner passcode"
+              autocomplete="current-password"
+              required
+            />
+          </label>
+
+          <p class="owner-lock-error" id="ownerUnlockError" hidden>
+            Wrong passcode. Please try again.
+          </p>
+
+          <div class="owner-lock-actions">
+            <button class="primary-button" type="submit">Open Dashboard</button>
+            <a class="secondary-button" href="index.html">Back to Storefront</a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <div class="page-shell" id="ownerDashboardShell" hidden>
+      <header class="site-header owner-header">
+        <div class="container nav-wrap owner-nav-wrap">
+          <a
+            class="brand"
+            href="#overview"
+            aria-label="Antarmana owner dashboard home"
+          >
+            <span class="brand-title">Antarmana</span>
+            <span class="brand-subtitle">Owner Dashboard</span>
+          </a>
+
+          <nav class="site-nav" aria-label="Owner sections">
+            <a class="nav-link active" href="#overview">Overview</a>
+            <a class="nav-link" href="#orders">Orders</a>
+            <a class="nav-link" href="#locations">Locations</a>
+          </nav>
+
+          <div class="owner-access-links">
+            <button
+              class="owner-bell-button"
+              id="notificationBellButton"
+              type="button"
+              aria-label="No new order alerts. Click to view orders."
+            >
+              <span class="owner-bell-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path
+                    d="M12 3a4 4 0 0 0-4 4v1.3c0 1.1-.4 2.2-1.1 3l-1.5 1.8a1 1 0 0 0 .8 1.6h11.6a1 1 0 0 0 .8-1.6l-1.5-1.8a4.8 4.8 0 0 1-1.1-3V7a4 4 0 0 0-4-4Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.8"
+                  />
+                  <path
+                    d="M10 18a2 2 0 0 0 4 0"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-width="1.8"
+                  />
+                </svg>
+              </span>
+              <span class="owner-bell-copy">
+                <strong id="notificationBellLabel">Order Alerts</strong>
+                <small id="notificationBellText">Waiting for new orders</small>
+              </span>
+              <span class="owner-bell-badge" id="notificationBellBadge" hidden
+                >0</span
+              >
+            </button>
+            <button
+              class="secondary-button"
+              id="lockDashboardButton"
+              type="button"
+            >
+              Lock Dashboard
+            </button>
+            <a class="secondary-button owner-store-link" href="index.html"
+              >Open Storefront</a
+            >
+          </div>
+        </div>
+      </header>
+
+      <main class="owner-main">
+        <section class="owner-hero-section" id="overview">
+          <div class="container">
+            <div class="owner-hero-card">
+              <div class="owner-hero-copy">
+                <span class="owner-kicker">Business control</span>
+                <h1>Check what was ordered and where it needs to go.</h1>
+                <p>
+                  Every completed checkout from the storefront is saved here on
+                  this browser, so the owner can review items, customer contact
+                  details, payment method, and full delivery address in one
+                  place.
+                </p>
+                <div class="owner-hero-actions">
+                  <button
+                    class="secondary-button danger-button"
+                    id="clearAllOrdersButton"
+                    type="button"
+                  >
+                    Clear All Orders
+                  </button>
+                </div>
+              </div>
+
+              <div class="owner-highlight-panel">
+                <article class="owner-highlight-card">
+                  <span>Live local dashboard</span>
+                  <strong id="heroOrderCount">0 orders saved</strong>
+                </article>
+                <article class="owner-highlight-card accent">
+                  <span>Quick focus</span>
+                  <strong>Customer, items, address, payment</strong>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="owner-stats-section">
+          <div class="container">
+            <div class="owner-stats-grid">
+              <article class="owner-stat-card">
+                <span>Total Orders</span>
+                <strong id="statTotalOrders">0</strong>
+                <p>All orders saved in this dashboard.</p>
+              </article>
+              <article class="owner-stat-card">
+                <span>Open Orders</span>
+                <strong id="statOpenOrders">0</strong>
+                <p>Orders still marked new, preparing, or dispatched.</p>
+              </article>
+              <article class="owner-stat-card">
+                <span>Total Revenue</span>
+                <strong id="statRevenue">&#8377;0</strong>
+                <p>Combined value of all saved orders.</p>
+              </article>
+              <article class="owner-stat-card">
+                <span>Delivery Cities</span>
+                <strong id="statCities">0</strong>
+                <p>Unique cities from customer addresses.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="owner-dashboard-section" id="orders">
+          <div class="container owner-dashboard-grid">
+            <div class="owner-orders-column">
+              <div class="owner-toolbar-card">
+                <div class="owner-toolbar-heading">
+                  <span class="eyebrow">Order filters</span>
+                  <h2>Find orders fast</h2>
+                </div>
+
+                <div class="owner-filter-grid">
+                  <label class="owner-filter-field">
+                    <span>Search</span>
+                    <input
+                      id="searchOrders"
+                      type="search"
+                      placeholder="Search by order ID, customer, phone, or city"
+                    />
+                  </label>
+                  <label class="owner-filter-field">
+                    <span>Status</span>
+                    <select id="statusFilter">
+                      <option value="all">All statuses</option>
+                      <option value="new">New</option>
+                      <option value="preparing">Preparing</option>
+                      <option value="dispatched">Dispatched</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </label>
+                  <label class="owner-filter-field">
+                    <span>Payment</span>
+                    <select id="paymentFilter">
+                      <option value="all">All payments</option>
+                      <option value="cod">Cash on Delivery</option>
+                      <option value="qr">QR Payment</option>
+                    </select>
+                  </label>
+                  <label class="owner-filter-field">
+                    <span>City</span>
+                    <select id="cityFilter">
+                      <option value="all">All cities</option>
+                    </select>
+                  </label>
+                  <label class="owner-filter-field">
+                    <span>Sort</span>
+                    <select id="sortOrders">
+                      <option value="latest">Latest first</option>
+                      <option value="oldest">Oldest first</option>
+                      <option value="highest">Highest amount</option>
+                      <option value="lowest">Lowest amount</option>
+                    </select>
+                  </label>
+                  <div class="owner-filter-actions">
+                    <button
+                      class="secondary-button"
+                      id="clearFiltersButton"
+                      type="button"
+                    >
+                      Clear Filters
+                    </button>
+                    <button
+                      class="secondary-button danger-button"
+                      id="clearAllOrdersToolbarButton"
+                      type="button"
+                    >
+                      Clear All Orders
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="owner-list-heading">
+                <div>
+                  <span class="eyebrow">Orders</span>
+                  <h2>Customer order feed</h2>
+                </div>
+                <strong class="owner-list-count" id="resultsCount"
+                  >0 orders</strong
+                >
+              </div>
+
+              <div class="owner-orders-list" id="ordersList"></div>
+            </div>
+
+            <aside class="owner-sidebar">
+              <section class="owner-sidebar-card" id="locations">
+                <div class="owner-sidebar-heading">
+                  <span class="eyebrow">Where</span>
+                  <h2>Delivery locations</h2>
+                </div>
+                <div class="location-list" id="locationList"></div>
+              </section>
+
+              <section class="owner-sidebar-card">
+                <div class="owner-sidebar-heading">
+                  <span class="eyebrow">Popular</span>
+                  <h2>Most ordered items</h2>
+                </div>
+                <div class="product-insight-list" id="topProductsList"></div>
+              </section>
+
+              <section class="owner-sidebar-card owner-note-card">
+                <span class="eyebrow">Note</span>
+                <p>
+                  This version stores orders in browser local storage. It works
+                  well for a local demo or a single-device setup, and can later
+                  be upgraded to a shared database.
+                </p>
+              </section>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <p class="owner-notification-live" id="ownerNotificationLive" aria-live="polite"></p>
+
+    <script src="analytics.js"></script>
+    <script src="owner.js"></script>
+  </body>
+</html>
