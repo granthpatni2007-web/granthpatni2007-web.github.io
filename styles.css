@@ -211,6 +211,7 @@ svg {
 }
 
 .hero-copy h1,
+.section-heading h1,
 .section-heading h2,
 .checkout-heading h2 {
   margin: 18px 0 18px;
@@ -860,6 +861,102 @@ textarea {
   margin: 0;
   color: var(--muted);
   line-height: 1.7;
+}
+
+.info-page-grid,
+.info-page-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.info-page-block {
+  margin-top: 18px;
+}
+
+.info-page-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.info-card {
+  padding: 26px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(23, 42, 61, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(12px);
+}
+
+.info-card h2,
+.info-card h3 {
+  margin: 0 0 12px;
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.info-card p,
+.info-card li,
+.info-card dd {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.info-card p,
+.info-card ul,
+.info-card ol,
+.info-card dl {
+  margin: 0;
+}
+
+.info-card p + p,
+.info-card p + ul,
+.info-card p + ol,
+.info-card ul + p,
+.info-card ol + p,
+.info-card dl + p {
+  margin-top: 14px;
+}
+
+.info-card ul,
+.info-card ol {
+  padding-left: 20px;
+}
+
+.info-card li + li {
+  margin-top: 8px;
+}
+
+.info-card dl {
+  display: grid;
+  gap: 12px;
+}
+
+.info-card dt {
+  font-weight: 800;
+  color: var(--text);
+}
+
+.info-card dd {
+  margin: 4px 0 0;
+}
+
+.page-link-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.text-link {
+  color: var(--accent-strong);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.page-meta {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .site-footer {
