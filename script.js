@@ -36,18 +36,6 @@ const products = [
     description: "Soft and refreshing with a delicate sweetness that feels light after every bite."
   },
   {
-    id: "methi-mathri",
-    name: "Methi Mathri",
-    price: 320,
-    description: "Flaky, savory, and seasoned with fenugreek for a familiar homemade taste."
-  },
-  {
-    id: "dry-kachori",
-    name: "Dry Kachori",
-    price: 450,
-    description: "A bold, crunchy snack with deep masala notes and long-lasting freshness."
-  },
-  {
     id: "khastha-kachori",
     name: "Khastha Kachori",
     price: 30,
