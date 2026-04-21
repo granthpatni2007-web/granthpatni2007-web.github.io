@@ -46,6 +46,15 @@ const products = [
     name: "Dry Kachori",
     price: 450,
     description: "A bold, crunchy snack with deep masala notes and long-lasting freshness."
+  },
+  {
+    id: "khastha-kachori",
+    name: "Khastha Kachori",
+    price: 30,
+    unit: "pc",
+    minQuantity: 10,
+    step: 1,
+    description: "Flaky, crispy kachori made for fresh snack boxes, parties, and tea-time cravings."
   }
 ];
 
@@ -142,20 +151,24 @@ function trackAnalyticsEvent(eventName, details = {}) {
 function renderProducts() {
   productGrid.innerHTML = products
     .map(
-      (product) => `
+      (product) => {
+        const minimumNote = getMinimumOrderNote(product);
+
+        return `
         <article class="product-card" data-product-id="${product.id}">
           <div class="product-card-top">
             <h3>${product.name}</h3>
-            <p class="product-price">${currency.format(product.price)}/kg</p>
+            <p class="product-price">${formatProductPrice(product)}</p>
           </div>
           <div class="product-card-body">
             <p>${product.description}</p>
+            ${minimumNote}
             <div class="product-footer">
               <div class="qty-control">
                 <strong>Qty:</strong>
                 <div class="stepper" aria-label="Quantity selector for ${product.name}">
                   <button class="qty-button" type="button" data-action="decrease">−</button>
-                  <span class="qty-value">1</span>
+                  <span class="qty-value">${getProductMinQuantity(product)}</span>
                   <button class="qty-button" type="button" data-action="increase">+</button>
                 </div>
               </div>
@@ -165,7 +178,8 @@ function renderProducts() {
             </div>
           </div>
         </article>
-      `
+      `;
+      }
     )
     .join("");
 
@@ -186,17 +200,24 @@ function handleProductGridClick(event) {
     return;
   }
 
+  const product = findProduct(productId);
+  if (!product) {
+    return;
+  }
+
   const qtyValue = card.querySelector(".qty-value");
-  const currentQty = Number(qtyValue.textContent);
+  const minQuantity = getProductMinQuantity(product);
+  const step = getProductStep(product);
+  const currentQty = Number(qtyValue.textContent) || minQuantity;
   const action = actionButton.dataset.action;
 
   if (action === "increase") {
-    qtyValue.textContent = String(currentQty + 1);
+    qtyValue.textContent = String(currentQty + step);
     return;
   }
 
   if (action === "decrease") {
-    qtyValue.textContent = String(Math.max(1, currentQty - 1));
+    qtyValue.textContent = String(Math.max(minQuantity, currentQty - step));
     return;
   }
 
@@ -204,10 +225,10 @@ function handleProductGridClick(event) {
     addToCart(productId, currentQty);
     trackAnalyticsEvent("add_to_cart", {
       productId,
-      productName: findProduct(productId)?.name || productId,
+      productName: product.name,
       quantity: currentQty
     });
-    showToast(`${findProduct(productId).name} added to cart`);
+    showToast(`${product.name} added to cart`);
     openCart();
   }
 }
@@ -218,7 +239,8 @@ function addToCart(productId, quantity) {
     return;
   }
 
-  cart[productId] = (cart[productId] || 0) + quantity;
+  const safeQuantity = Math.max(getProductMinQuantity(product), Number(quantity) || 0);
+  cart[productId] = (cart[productId] || 0) + safeQuantity;
   saveCart();
   renderCart();
   resetPaymentState(getActivePaymentMethod());
@@ -236,14 +258,20 @@ function handleCartClick(event) {
     return;
   }
 
+  const product = findProduct(productId);
+  const step = getProductStep(product);
+  const minQuantity = getProductMinQuantity(product);
+
   if (action === "increase") {
-    cart[productId] += 1;
+    cart[productId] += step;
   }
 
   if (action === "decrease") {
-    cart[productId] -= 1;
-    if (cart[productId] <= 0) {
+    const nextQuantity = cart[productId] - step;
+    if (nextQuantity < minQuantity) {
       delete cart[productId];
+    } else {
+      cart[productId] = nextQuantity;
     }
   }
 
@@ -291,21 +319,26 @@ function renderCart() {
   cartItems.innerHTML = entries
     .map(([productId, quantity]) => {
       const product = findProduct(productId);
+      if (!product) {
+        return "";
+      }
+
       const lineTotal = product.price * quantity;
+      const quantityLabel = formatQuantity(quantity, product);
 
       return `
         <article class="cart-item">
           <div class="cart-item-top">
             <div>
               <strong>${product.name}</strong>
-              <span>${currency.format(product.price)}/kg</span>
+              <span>${formatProductPrice(product)}</span>
             </div>
             <strong>${currency.format(lineTotal)}</strong>
           </div>
           <div class="cart-item-footer">
             <div class="cart-item-actions">
               <button class="mini-button" type="button" data-cart-action="decrease" data-product-id="${productId}">−</button>
-              <span>${quantity} kg</span>
+              <span>${quantityLabel}</span>
               <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}">+</button>
             </div>
             <button class="mini-button remove-button" type="button" data-cart-action="remove" data-product-id="${productId}">
@@ -324,14 +357,19 @@ function renderCart() {
   summaryItems.innerHTML = entries
     .map(([productId, quantity]) => {
       const product = findProduct(productId);
+      if (!product) {
+        return "";
+      }
+
       const lineTotal = product.price * quantity;
+      const quantityLabel = formatQuantity(quantity, product);
 
       return `
         <article class="summary-item">
           <div class="summary-item-top">
             <div>
               <strong>${product.name}</strong>
-              <span>${quantity} kg</span>
+              <span>${quantityLabel}</span>
             </div>
             <strong>${currency.format(lineTotal)}</strong>
           </div>
@@ -356,6 +394,36 @@ function getCartTotals() {
 
 function findProduct(productId) {
   return products.find((product) => product.id === productId);
+}
+
+function getProductUnit(product) {
+  return product?.unit || "kg";
+}
+
+function getProductMinQuantity(product) {
+  return Number(product?.minQuantity || 1);
+}
+
+function getProductStep(product) {
+  return Number(product?.step || 1);
+}
+
+function formatProductPrice(product) {
+  return `${currency.format(product.price)} / ${getProductUnit(product)}`;
+}
+
+function formatQuantity(quantity, product) {
+  return `${quantity} ${getProductUnit(product)}`;
+}
+
+function getMinimumOrderNote(product) {
+  const minQuantity = getProductMinQuantity(product);
+  if (minQuantity <= 1) {
+    return "";
+  }
+
+  const unit = getProductUnit(product);
+  return `<p class="product-minimum-note">Minimum order: ${minQuantity} ${unit}. After that, add 1 ${unit} at a time.</p>`;
 }
 
 function openCart() {
@@ -592,6 +660,7 @@ function buildOrderPayload(formData, paymentType, totals) {
       id: product.id,
       name: product.name,
       price: product.price,
+      unit: getProductUnit(product),
       quantity,
       lineTotal: product.price * quantity
     };

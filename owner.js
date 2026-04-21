@@ -538,11 +538,13 @@ function renderOrderCard(order) {
 }
 
 function renderOrderItem(item) {
+  const unit = item.unit || "kg";
+
   return `
     <div class="order-item-row">
       <div>
         <strong>${escapeHtml(item.name || "Item")}</strong>
-        <small>${escapeHtml(String(item.quantity || 0))} kg x ${currency.format(Number(item.price || 0))}</small>
+        <small>${escapeHtml(String(item.quantity || 0))} ${escapeHtml(unit)} x ${currency.format(Number(item.price || 0))}</small>
       </div>
       <strong>${currency.format(Number(item.lineTotal || 0))}</strong>
     </div>
@@ -593,9 +595,10 @@ function renderTopProducts(orders) {
 
   orders.forEach((order) => {
     (order.items || []).forEach((item) => {
-      const existing = productCounts.get(item.name) || { quantity: 0, revenue: 0 };
+      const existing = productCounts.get(item.name) || { quantity: 0, revenue: 0, unit: item.unit || "kg" };
       existing.quantity += Number(item.quantity || 0);
       existing.revenue += Number(item.lineTotal || 0);
+      existing.unit = item.unit || existing.unit || "kg";
       productCounts.set(item.name, existing);
     });
   });
@@ -620,7 +623,7 @@ function renderTopProducts(orders) {
         <article class="product-insight-card">
           <div>
             <strong>${escapeHtml(name)}</strong>
-            <span>${stats.quantity} kg ordered</span>
+            <span>${stats.quantity} ${escapeHtml(stats.unit || "kg")} ordered</span>
           </div>
           <strong>${currency.format(stats.revenue)}</strong>
         </article>
@@ -857,6 +860,7 @@ function createSampleOrders() {
 function createSampleOrder(order) {
   const items = order.items.map((item) => ({
     ...item,
+    unit: item.unit || "kg",
     lineTotal: item.price * item.quantity
   }));
   const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
