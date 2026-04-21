@@ -14,6 +14,10 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-IN", {
   timeStyle: "short"
 });
 
+const dateFormatter = new Intl.DateTimeFormat("en-IN", {
+  dateStyle: "medium"
+});
+
 const statusLabels = {
   new: "New",
   preparing: "Preparing",
@@ -461,6 +465,9 @@ function renderOrderCard(order) {
   const phoneLink = sanitizedPhone ? `<a class="quick-link" href="tel:${sanitizedPhone}">Call Customer</a>` : "";
   const whatsappLink = sanitizedPhone ? `<a class="quick-link" href="https://wa.me/${sanitizedPhone}" target="_blank" rel="noreferrer">WhatsApp</a>` : "";
   const instructions = address.instructions ? escapeHtml(address.instructions) : "No delivery instructions provided.";
+  const deliveryDate = address.deliveryDate
+    ? escapeHtml(formatDeliveryDate(address.deliveryDate))
+    : "No delivery date selected.";
 
   return `
     <article class="order-card">
@@ -502,6 +509,7 @@ function renderOrderCard(order) {
             <div class="order-address-tags">
               <span class="address-chip">${escapeHtml(address.city || "Unknown city")}</span>
             </div>
+            <p class="order-note"><strong>Delivery date:</strong> ${deliveryDate}</p>
             <p class="order-note">${instructions}</p>
           </div>
         </section>
@@ -637,7 +645,8 @@ function getFilteredOrders(orders) {
         order.address?.street,
         order.address?.city,
         order.address?.state,
-        order.address?.postalCode
+        order.address?.postalCode,
+        order.address?.deliveryDate
       ].join(" ")
     );
 
@@ -770,6 +779,7 @@ function createSampleOrders() {
         street: "42 MG Road, Flat 3B",
         city: "Indore",
         postalCode: "452001",
+        deliveryDate: "2026-04-18",
         instructions: "Call once before reaching the building gate."
       },
       items: [
@@ -790,6 +800,7 @@ function createSampleOrders() {
         street: "12 Tower Chowk",
         city: "Ujjain",
         postalCode: "456001",
+        deliveryDate: "2026-04-18",
         instructions: "Please deliver after 4 PM."
       },
       items: [
@@ -810,6 +821,7 @@ function createSampleOrders() {
         street: "88 Civil Lines",
         city: "Bhopal",
         postalCode: "462001",
+        deliveryDate: "2026-04-17",
         instructions: "Security desk will receive the parcel."
       },
       items: [
@@ -830,6 +842,7 @@ function createSampleOrders() {
         street: "5 Station Road",
         city: "Dewas",
         postalCode: "455001",
+        deliveryDate: "2026-04-17",
         instructions: ""
       },
       items: [
@@ -894,6 +907,14 @@ function formatDate(isoString) {
     return dateTimeFormatter.format(new Date(isoString));
   } catch {
     return isoString || "";
+  }
+}
+
+function formatDeliveryDate(value) {
+  try {
+    return dateFormatter.format(new Date(`${value}T00:00:00`));
+  } catch {
+    return value || "";
   }
 }
 

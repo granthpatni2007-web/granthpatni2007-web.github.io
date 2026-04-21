@@ -82,6 +82,7 @@ const paymentPanels = document.querySelectorAll(".payment-panel");
 const paymentActionButtons = document.querySelectorAll("[data-complete-payment]");
 const navLinks = document.querySelectorAll(".nav-link");
 const checkoutForm = document.getElementById("checkoutForm");
+const deliveryDateInput = document.getElementById("deliveryDate");
 const toast = document.getElementById("toast");
 const featuredPriceLabel = document.querySelector(".hero-card-featured strong");
 const placeOrderButton = document.getElementById("placeOrderButton");
@@ -101,6 +102,7 @@ if (featuredPriceLabel) {
 renderProducts();
 renderCart();
 setupScrollSpy();
+setMinimumDeliveryDate();
 updatePaymentGate();
 
 productGrid.addEventListener("click", handleProductGridClick);
@@ -604,6 +606,7 @@ function buildOrderPayload(formData, paymentType, totals) {
     street: String(formData.get("street") || "").trim(),
     city: String(formData.get("city") || "").trim(),
     postalCode: String(formData.get("postalCode") || "").trim(),
+    deliveryDate: String(formData.get("deliveryDate") || "").trim(),
     instructions: String(formData.get("instructions") || "").trim()
   };
 
@@ -637,6 +640,18 @@ function getPaymentLabel(paymentType) {
   }
 
   return "QR Payment";
+}
+
+function setMinimumDeliveryDate() {
+  if (!deliveryDateInput) {
+    return;
+  }
+
+  const today = new Date();
+  const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10);
+  deliveryDateInput.min = localDate;
 }
 
 function setupScrollSpy() {
