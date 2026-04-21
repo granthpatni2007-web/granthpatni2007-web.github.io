@@ -14,13 +14,13 @@ const products = [
   {
     id: "sawali",
     name: "Sawali",
-    price: 340,
+    price: 360,
     description: "A delightful festive sweet with a smooth bite and rich traditional flavor."
   },
   {
     id: "besan-chakki",
     name: "Besan Chakki",
-    price: 600,
+    price: 680,
     description: "Dense, nutty, and indulgent. Crafted for celebrations, gifting, and special occasions."
   },
   {
