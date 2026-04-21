@@ -561,6 +561,17 @@ svg {
   letter-spacing: -0.03em;
 }
 
+.form-delivery-note {
+  margin: -4px 0 18px;
+  border: 1px solid rgba(181, 119, 46, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 246, 228, 0.76);
+  color: var(--earth);
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 12px 14px;
+}
+
 .step-badge {
   width: 38px;
   height: 38px;
