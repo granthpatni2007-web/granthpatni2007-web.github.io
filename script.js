@@ -38,9 +38,9 @@ const products = [
   {
     id: "khastha-kachori",
     name: "Khastha Kachori",
-    price: 30,
+    price: 35,
     unit: "pc",
-    minQuantity: 10,
+    minQuantity: 15,
     step: 1,
     description: "Flaky, crispy kachori made for fresh snack boxes, parties, and tea-time cravings."
   }
