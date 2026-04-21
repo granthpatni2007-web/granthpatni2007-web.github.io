@@ -726,7 +726,7 @@ textarea {
 
 .qr-payment-panel {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) 220px;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
   gap: 22px;
   align-items: center;
 }
@@ -774,7 +774,7 @@ textarea {
   display: grid;
   place-items: center;
   gap: 10px;
-  min-height: 240px;
+  min-height: 360px;
   padding: 20px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.12);
@@ -787,10 +787,10 @@ textarea {
 }
 
 .qr-photo {
-  width: 168px;
-  height: 168px;
-  object-fit: cover;
-  padding: 10px;
+  width: min(100%, 240px);
+  height: auto;
+  object-fit: contain;
+  padding: 8px;
   border-radius: 18px;
   background: #ffffff;
 }
