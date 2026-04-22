@@ -929,14 +929,14 @@ function formatItemQuantity(quantity, unit) {
     const grams = Math.round((quantity - wholeKg) * 1000);
 
     if (wholeKg && grams) {
-      return `${wholeKg} kg ${grams} g`;
+      return `${wholeKg} kg ${grams} gram`;
     }
 
     if (wholeKg) {
       return `${wholeKg} kg`;
     }
 
-    return `${grams} g`;
+    return `${grams} gram`;
   }
 
   return `${formatNumber(quantity)} ${unit}`;

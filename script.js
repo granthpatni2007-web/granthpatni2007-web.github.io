@@ -153,7 +153,7 @@ function renderProducts() {
             ${minimumNote}
             <div class="product-footer">
               <button class="primary-button add-button" type="button" data-action="add">
-                Add to Cart
+                ${getAddButtonLabel(product)}
               </button>
             </div>
           </div>
@@ -394,7 +394,11 @@ function getMinimumOrderNote(product) {
     return "";
   }
 
-  return `<p class="product-minimum-note">Minimum order: ${formatQuantity(minQuantity, product)}. After that, add ${formatQuantity(step, product)} at a time.</p>`;
+  return `<p class="product-minimum-note"><strong>Minimum: ${formatQuantity(minQuantity, product)}</strong><span>Cart me + se ${formatQuantity(step, product)} add kare.</span></p>`;
+}
+
+function getAddButtonLabel(product) {
+  return `Add ${formatQuantity(getProductMinQuantity(product), product)}`;
 }
 
 function formatWeightQuantity(quantity) {
@@ -402,14 +406,14 @@ function formatWeightQuantity(quantity) {
   const grams = Math.round((quantity - wholeKg) * 1000);
 
   if (wholeKg && grams) {
-    return `${wholeKg} kg ${grams} g`;
+    return `${wholeKg} kg ${grams} gram`;
   }
 
   if (wholeKg) {
     return `${wholeKg} kg`;
   }
 
-  return `${grams} g`;
+  return `${grams} gram`;
 }
 
 function formatNumber(value) {
