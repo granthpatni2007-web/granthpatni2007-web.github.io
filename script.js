@@ -288,14 +288,8 @@ function renderCart() {
   updatePaymentGate();
 
   if (!entries.length) {
-    const emptyMarkup = `
-      <div class="empty-state">
-        Your cart is empty. Add sweets or snacks from the price list to start building your order.
-      </div>
-    `;
-
-    cartItems.innerHTML = emptyMarkup;
-    summaryItems.innerHTML = emptyMarkup;
+    cartItems.innerHTML = "";
+    summaryItems.innerHTML = "";
     return;
   }
 
