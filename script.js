@@ -153,7 +153,6 @@ function renderProducts() {
             ${minimumNote}
             <div class="product-footer">
               <div class="qty-control">
-                <strong>Qty:</strong>
                 <div class="stepper" aria-label="Quantity selector for ${product.name}">
                   <button class="qty-button" type="button" data-action="decrease">−</button>
                   <span class="qty-value" data-quantity="${getProductMinQuantity(product)}">${formatQuantity(getProductMinQuantity(product), product)}</span>
