@@ -193,7 +193,6 @@ function handleProductGridClick(event) {
       quantity: addedQuantity
     });
     showToast(`${product.name} added to cart (${formatQuantity(addedQuantity, product)})`);
-    openCart();
   }
 }
 
