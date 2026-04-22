@@ -9,6 +9,7 @@
   --accent: #d55684;
   --accent-strong: #b93366;
   --accent-soft: rgba(213, 86, 132, 0.12);
+  --earth: #8a5a1e;
   --mint: #dff2ec;
   --mint-deep: #cde8df;
   --shadow: 0 24px 55px rgba(29, 39, 64, 0.10);
@@ -466,6 +467,18 @@ svg {
   margin: 0 0 24px;
   color: var(--muted);
   line-height: 1.8;
+}
+
+.product-card-body .product-rule-note {
+  margin: -8px 0 22px;
+  padding: 12px 14px;
+  border: 1px solid rgba(181, 119, 46, 0.22);
+  border-radius: 16px;
+  color: var(--earth);
+  background: rgba(255, 246, 228, 0.72);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.55;
 }
 
 .product-footer {
