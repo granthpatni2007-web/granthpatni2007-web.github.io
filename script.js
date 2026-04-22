@@ -260,6 +260,7 @@ function handleCartClick(event) {
     delete cart[lineId];
   }
 
+  removeUnderMinimumKgLines(productId, product);
   saveCart();
   renderProducts();
   renderCart();
@@ -379,6 +380,24 @@ function getCartQuantity(productId) {
   return getCartEntries()
     .filter((entry) => entry.productId === productId)
     .reduce((sum, entry) => sum + entry.quantity, 0);
+}
+
+function removeUnderMinimumKgLines(productId, product) {
+  if (getProductUnit(product) !== "kg") {
+    return;
+  }
+
+  const remainingQuantity = getCartQuantity(productId);
+  const minimumQuantity = getProductMinQuantity(product);
+  if (remainingQuantity === 0 || remainingQuantity >= minimumQuantity) {
+    return;
+  }
+
+  getCartEntries()
+    .filter((entry) => entry.productId === productId)
+    .forEach((entry) => {
+      delete cart[entry.lineId];
+    });
 }
 
 function createCartLineKey(productId, quantity) {
