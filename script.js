@@ -48,6 +48,7 @@ const currency = new Intl.NumberFormat("en-IN", {
 
 const storageKey = "Antarmana-cart";
 const ordersStorageKey = "Antarmana-orders";
+const cartLineSeparator = "::";
 const cart = loadCart();
 
 const productGrid = document.getElementById("productGrid");
@@ -201,7 +202,7 @@ function addToCart(productId, quantity) {
     return;
   }
 
-  const currentQuantity = Number(cart[productId] || 0);
+  const currentQuantity = getCartQuantity(productId);
   const requestedQuantity = normalizeQuantity(Number(quantity) || 0);
   const unit = getProductUnit(product);
   const minQuantity = getProductMinQuantity(product);
@@ -213,7 +214,8 @@ function addToCart(productId, quantity) {
     ? getProductStep(product)
     : minQuantity;
   const safeQuantity = Math.max(minimumAddQuantity, requestedQuantity);
-  cart[productId] = normalizeQuantity(currentQuantity + safeQuantity);
+  const lineId = createCartLineKey(productId, safeQuantity);
+  cart[lineId] = normalizeQuantity((cart[lineId] || 0) + safeQuantity);
   saveCart();
   renderProducts();
   renderCart();
@@ -227,9 +229,10 @@ function handleCartClick(event) {
     return;
   }
 
-  const productId = button.dataset.productId;
+  const lineId = button.dataset.lineId;
+  const productId = button.dataset.productId || getProductIdFromCartLine(lineId);
   const action = button.dataset.cartAction;
-  if (!productId || !cart[productId]) {
+  if (!lineId || !productId || !cart[lineId]) {
     return;
   }
 
@@ -239,21 +242,21 @@ function handleCartClick(event) {
 
   if (action === "increase") {
     const addQuantity = Number(button.dataset.cartQuantity) || step;
-    cart[productId] = normalizeQuantity(cart[productId] + addQuantity);
+    cart[lineId] = normalizeQuantity(cart[lineId] + addQuantity);
   }
 
   if (action === "decrease") {
-    const nextQuantity = normalizeQuantity(cart[productId] - step);
+    const nextQuantity = normalizeQuantity(cart[lineId] - step);
     const minimumRemaining = getProductUnit(product) === "kg" ? step : minQuantity;
     if (nextQuantity < minimumRemaining) {
-      delete cart[productId];
+      delete cart[lineId];
     } else {
-      cart[productId] = nextQuantity;
+      cart[lineId] = nextQuantity;
     }
   }
 
   if (action === "remove") {
-    delete cart[productId];
+    delete cart[lineId];
   }
 
   saveCart();
@@ -263,7 +266,7 @@ function handleCartClick(event) {
 }
 
 function renderCart() {
-  const entries = Object.entries(cart);
+  const entries = getCartEntries();
   const totals = getCartTotals();
 
   cartBadge.textContent = String(totals.itemCount);
@@ -295,12 +298,7 @@ function renderCart() {
   }
 
   cartItems.innerHTML = entries
-    .map(([productId, quantity]) => {
-      const product = findProduct(productId);
-      if (!product) {
-        return "";
-      }
-
+    .map(({ lineId, productId, quantity, product }) => {
       const lineTotal = product.price * quantity;
 
       return `
@@ -313,8 +311,8 @@ function renderCart() {
             <strong>${currency.format(lineTotal)}</strong>
           </div>
           <div class="cart-item-footer">
-            ${getCartQuantityControls(productId, quantity, product)}
-            <button class="mini-button remove-button" type="button" data-cart-action="remove" data-product-id="${productId}">
+            ${getCartQuantityControls(lineId, productId, quantity, product)}
+            <button class="mini-button remove-button" type="button" data-cart-action="remove" data-line-id="${lineId}" data-product-id="${productId}">
               Remove
             </button>
           </div>
@@ -324,12 +322,7 @@ function renderCart() {
     .join("");
 
   summaryItems.innerHTML = entries
-    .map(([productId, quantity]) => {
-      const product = findProduct(productId);
-      if (!product) {
-        return "";
-      }
-
+    .map(({ quantity, product }) => {
       const lineTotal = product.price * quantity;
       const quantityLabel = formatQuantity(quantity, product);
 
@@ -349,16 +342,32 @@ function renderCart() {
 }
 
 function getCartTotals() {
-  const subtotal = Object.entries(cart).reduce((sum, [productId, quantity]) => {
-    const product = findProduct(productId);
-    return sum + (product ? product.price * quantity : 0);
+  const entries = getCartEntries();
+  const subtotal = entries.reduce((sum, { product, quantity }) => {
+    return sum + product.price * quantity;
   }, 0);
 
-  const itemCount = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+  const itemCount = entries.reduce((sum, { quantity }) => sum + quantity, 0);
   const shipping = 0;
   const total = subtotal + shipping;
 
   return { subtotal, shipping, total, itemCount };
+}
+
+function getCartEntries() {
+  return Object.entries(cart)
+    .map(([lineId, quantity]) => {
+      const productId = getProductIdFromCartLine(lineId);
+      const product = findProduct(productId);
+
+      return {
+        lineId,
+        productId,
+        product,
+        quantity: normalizeQuantity(quantity)
+      };
+    })
+    .filter((entry) => entry.product && entry.quantity > 0);
 }
 
 function findProduct(productId) {
@@ -366,7 +375,17 @@ function findProduct(productId) {
 }
 
 function getCartQuantity(productId) {
-  return Number(cart[productId] || 0);
+  return getCartEntries()
+    .filter((entry) => entry.productId === productId)
+    .reduce((sum, entry) => sum + entry.quantity, 0);
+}
+
+function createCartLineKey(productId, quantity) {
+  return `${productId}${cartLineSeparator}${formatNumber(normalizeQuantity(quantity))}`;
+}
+
+function getProductIdFromCartLine(lineId) {
+  return String(lineId || "").split(cartLineSeparator)[0];
 }
 
 function getProductUnit(product) {
@@ -427,7 +446,7 @@ function getProductActionButtons(product) {
   `;
 }
 
-function getCartQuantityControls(productId, quantity, product) {
+function getCartQuantityControls(lineId, productId, quantity, product) {
   const step = getProductStep(product);
   const minQuantity = getProductMinQuantity(product);
   const quantityLabel = formatQuantity(quantity, product);
@@ -437,7 +456,7 @@ function getCartQuantityControls(productId, quantity, product) {
       <div class="cart-item-actions cart-item-actions-stacked">
         <span class="cart-quantity-label">${quantityLabel}</span>
         <div class="cart-action-buttons">
-          <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}" data-cart-quantity="${minQuantity}">+ ${formatQuantity(minQuantity, product)}</button>
+          <button class="mini-button" type="button" data-cart-action="increase" data-line-id="${lineId}" data-product-id="${productId}" data-cart-quantity="${minQuantity}">+ ${formatQuantity(minQuantity, product)}</button>
         </div>
       </div>
     `;
@@ -445,9 +464,9 @@ function getCartQuantityControls(productId, quantity, product) {
 
   return `
     <div class="cart-item-actions">
-      <button class="mini-button" type="button" data-cart-action="decrease" data-product-id="${productId}">- ${formatQuantity(step, product)}</button>
+      <button class="mini-button" type="button" data-cart-action="decrease" data-line-id="${lineId}" data-product-id="${productId}">- ${formatQuantity(step, product)}</button>
       <span>${quantityLabel}</span>
-      <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}" data-cart-quantity="${step}">+ ${formatQuantity(step, product)}</button>
+      <button class="mini-button" type="button" data-cart-action="increase" data-line-id="${lineId}" data-product-id="${productId}" data-cart-quantity="${step}">+ ${formatQuantity(step, product)}</button>
     </div>
   `;
 }
@@ -677,10 +696,32 @@ function showToast(message) {
 function loadCart() {
   try {
     const savedValue = window.localStorage.getItem(storageKey);
-    return savedValue ? JSON.parse(savedValue) : {};
+    return normalizeStoredCart(savedValue ? JSON.parse(savedValue) : {});
   } catch {
     return {};
   }
+}
+
+function normalizeStoredCart(savedCart) {
+  if (!savedCart || typeof savedCart !== "object" || Array.isArray(savedCart)) {
+    return {};
+  }
+
+  return Object.entries(savedCart).reduce((normalizedCart, [lineId, quantity]) => {
+    const productId = getProductIdFromCartLine(lineId);
+    const product = findProduct(productId);
+    const safeQuantity = normalizeQuantity(quantity);
+
+    if (!product || safeQuantity <= 0) {
+      return normalizedCart;
+    }
+
+    const safeLineId = lineId.includes(cartLineSeparator)
+      ? lineId
+      : createCartLineKey(productId, safeQuantity);
+    normalizedCart[safeLineId] = normalizeQuantity((normalizedCart[safeLineId] || 0) + safeQuantity);
+    return normalizedCart;
+  }, {});
 }
 
 function saveCart() {
@@ -703,9 +744,7 @@ function saveOrder(order) {
 }
 
 function buildOrderPayload(formData, paymentType, totals) {
-  const items = Object.entries(cart).map(([productId, quantity]) => {
-    const product = findProduct(productId);
-
+  const items = getCartEntries().map(({ productId, product, quantity }) => {
     return {
       id: product.id,
       name: product.name,
