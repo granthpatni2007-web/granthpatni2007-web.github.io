@@ -532,6 +532,13 @@ svg {
   box-shadow: 0 14px 26px rgba(181, 119, 46, 0.16);
 }
 
+.add-button:disabled,
+.mini-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+  transform: none;
+}
+
 .checkout-header {
   display: flex;
   align-items: center;
