@@ -436,15 +436,7 @@ function formatQuantity(quantity, product) {
 }
 
 function getMinimumOrderNote(product) {
-  if (getProductUnit(product) !== "kg") {
-    return "";
-  }
-
-  return `
-    <p class="product-rule-note">
-      500 gram pehle 1 kg add karne ke baad hi chalega. 1 kg remove karne par 500 gram bhi remove hoga.
-    </p>
-  `;
+  return "";
 }
 
 function getProductActionButtons(product) {

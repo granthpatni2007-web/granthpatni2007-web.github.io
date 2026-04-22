@@ -469,18 +469,6 @@ svg {
   line-height: 1.8;
 }
 
-.product-card-body .product-rule-note {
-  margin: -8px 0 22px;
-  padding: 12px 14px;
-  border: 1px solid rgba(181, 119, 46, 0.22);
-  border-radius: 16px;
-  color: var(--earth);
-  background: rgba(255, 246, 228, 0.72);
-  font-size: 0.92rem;
-  font-weight: 700;
-  line-height: 1.55;
-}
-
 .product-footer {
   display: flex;
   align-items: center;
