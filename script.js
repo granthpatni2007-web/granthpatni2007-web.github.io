@@ -20,7 +20,7 @@ const products = [
   {
     id: "besan-chakki",
     name: "Besan Chakki",
-    price: 680,
+    price: 650,
     description: "Dense, nutty, and indulgent. Crafted for celebrations, gifting, and special occasions."
   },
   {
