@@ -539,12 +539,13 @@ function renderOrderCard(order) {
 
 function renderOrderItem(item) {
   const unit = item.unit || "kg";
+  const quantity = formatItemQuantity(Number(item.quantity || 0), unit);
 
   return `
     <div class="order-item-row">
       <div>
         <strong>${escapeHtml(item.name || "Item")}</strong>
-        <small>${escapeHtml(String(item.quantity || 0))} ${escapeHtml(unit)} x ${currency.format(Number(item.price || 0))}</small>
+        <small>${escapeHtml(quantity)} x ${currency.format(Number(item.price || 0))}</small>
       </div>
       <strong>${currency.format(Number(item.lineTotal || 0))}</strong>
     </div>
@@ -623,7 +624,7 @@ function renderTopProducts(orders) {
         <article class="product-insight-card">
           <div>
             <strong>${escapeHtml(name)}</strong>
-            <span>${stats.quantity} ${escapeHtml(stats.unit || "kg")} ordered</span>
+            <span>${escapeHtml(formatItemQuantity(stats.quantity, stats.unit || "kg"))} ordered</span>
           </div>
           <strong>${currency.format(stats.revenue)}</strong>
         </article>
@@ -920,6 +921,29 @@ function formatDeliveryDate(value) {
   } catch {
     return value || "";
   }
+}
+
+function formatItemQuantity(quantity, unit) {
+  if (unit === "kg") {
+    const wholeKg = Math.floor(quantity);
+    const grams = Math.round((quantity - wholeKg) * 1000);
+
+    if (wholeKg && grams) {
+      return `${wholeKg} kg ${grams} g`;
+    }
+
+    if (wholeKg) {
+      return `${wholeKg} kg`;
+    }
+
+    return `${grams} g`;
+  }
+
+  return `${formatNumber(quantity)} ${unit}`;
+}
+
+function formatNumber(value) {
+  return Number.isInteger(value) ? String(value) : String(value).replace(/\.0+$/, "");
 }
 
 function sanitizePhone(value) {

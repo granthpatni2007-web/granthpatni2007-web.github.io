@@ -156,7 +156,7 @@ function renderProducts() {
                 <strong>Qty:</strong>
                 <div class="stepper" aria-label="Quantity selector for ${product.name}">
                   <button class="qty-button" type="button" data-action="decrease">−</button>
-                  <span class="qty-value">${getProductMinQuantity(product)}</span>
+                  <span class="qty-value" data-quantity="${getProductMinQuantity(product)}">${formatQuantity(getProductMinQuantity(product), product)}</span>
                   <button class="qty-button" type="button" data-action="increase">+</button>
                 </div>
               </div>
@@ -196,16 +196,16 @@ function handleProductGridClick(event) {
   const qtyValue = card.querySelector(".qty-value");
   const minQuantity = getProductMinQuantity(product);
   const step = getProductStep(product);
-  const currentQty = Number(qtyValue.textContent) || minQuantity;
+  const currentQty = Number(qtyValue.dataset.quantity) || minQuantity;
   const action = actionButton.dataset.action;
 
   if (action === "increase") {
-    qtyValue.textContent = String(currentQty + step);
+    setQuantityValue(qtyValue, normalizeQuantity(currentQty + step), product);
     return;
   }
 
   if (action === "decrease") {
-    qtyValue.textContent = String(Math.max(minQuantity, currentQty - step));
+    setQuantityValue(qtyValue, Math.max(minQuantity, normalizeQuantity(currentQty - step)), product);
     return;
   }
 
@@ -228,7 +228,7 @@ function addToCart(productId, quantity) {
   }
 
   const safeQuantity = Math.max(getProductMinQuantity(product), Number(quantity) || 0);
-  cart[productId] = (cart[productId] || 0) + safeQuantity;
+  cart[productId] = normalizeQuantity((cart[productId] || 0) + safeQuantity);
   saveCart();
   renderCart();
   resetPaymentState(getActivePaymentMethod());
@@ -251,11 +251,11 @@ function handleCartClick(event) {
   const minQuantity = getProductMinQuantity(product);
 
   if (action === "increase") {
-    cart[productId] += step;
+    cart[productId] = normalizeQuantity(cart[productId] + step);
   }
 
   if (action === "decrease") {
-    const nextQuantity = cart[productId] - step;
+    const nextQuantity = normalizeQuantity(cart[productId] - step);
     if (nextQuantity < minQuantity) {
       delete cart[productId];
     } else {
@@ -393,7 +393,7 @@ function getProductMinQuantity(product) {
 }
 
 function getProductStep(product) {
-  return Number(product?.step || 1);
+  return Number(product?.step || (getProductUnit(product) === "kg" ? 0.5 : 1));
 }
 
 function formatProductPrice(product) {
@@ -401,17 +401,52 @@ function formatProductPrice(product) {
 }
 
 function formatQuantity(quantity, product) {
-  return `${quantity} ${getProductUnit(product)}`;
+  const unit = getProductUnit(product);
+  const value = normalizeQuantity(quantity);
+
+  if (unit === "kg") {
+    return formatWeightQuantity(value);
+  }
+
+  return `${formatNumber(value)} ${unit}`;
 }
 
 function getMinimumOrderNote(product) {
   const minQuantity = getProductMinQuantity(product);
-  if (minQuantity <= 1) {
+  const step = getProductStep(product);
+  if (minQuantity <= 1 && step >= 1) {
     return "";
   }
 
-  const unit = getProductUnit(product);
-  return `<p class="product-minimum-note">Minimum order: ${minQuantity} ${unit}. After that, add 1 ${unit} at a time.</p>`;
+  return `<p class="product-minimum-note">Minimum order: ${formatQuantity(minQuantity, product)}. After that, add ${formatQuantity(step, product)} at a time.</p>`;
+}
+
+function setQuantityValue(element, quantity, product) {
+  element.dataset.quantity = String(quantity);
+  element.textContent = formatQuantity(quantity, product);
+}
+
+function formatWeightQuantity(quantity) {
+  const wholeKg = Math.floor(quantity);
+  const grams = Math.round((quantity - wholeKg) * 1000);
+
+  if (wholeKg && grams) {
+    return `${wholeKg} kg ${grams} g`;
+  }
+
+  if (wholeKg) {
+    return `${wholeKg} kg`;
+  }
+
+  return `${grams} g`;
+}
+
+function formatNumber(value) {
+  return Number.isInteger(value) ? String(value) : String(value).replace(/\.0+$/, "");
+}
+
+function normalizeQuantity(value) {
+  return Math.round((Number(value) || 0) * 100) / 100;
 }
 
 function openCart() {
