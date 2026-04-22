@@ -247,8 +247,9 @@ function handleCartClick(event) {
   }
 
   if (action === "decrease") {
-    const nextQuantity = normalizeQuantity(cart[lineId] - step);
-    const minimumRemaining = getProductUnit(product) === "kg" ? step : minQuantity;
+    const removeQuantity = Number(button.dataset.cartQuantity) || step;
+    const nextQuantity = normalizeQuantity(cart[lineId] - removeQuantity);
+    const minimumRemaining = getProductUnit(product) === "kg" ? removeQuantity : minQuantity;
     if (nextQuantity < minimumRemaining) {
       delete cart[lineId];
     } else {
@@ -442,8 +443,8 @@ function formatQuantity(quantity, product) {
 
 function formatCartActionQuantity(quantity, product) {
   const value = normalizeQuantity(quantity);
-  if (getProductUnit(product) === "kg" && value < 1) {
-    return `${Math.round(value * 1000)}g`;
+  if (getProductUnit(product) === "kg") {
+    return value < 1 ? `${Math.round(value * 1000)}g` : `${formatNumber(value)}kg`;
   }
 
   return formatQuantity(value, product);
@@ -487,14 +488,16 @@ function getCartQuantityControls(lineId, productId, quantity, product) {
 
   if (getProductUnit(product) === "kg") {
     const baseLineQuantity = getQuantityFromCartLine(lineId);
-    const increaseQuantity =
+    const actionQuantity =
       baseLineQuantity > 0 && baseLineQuantity < minQuantity ? step : minQuantity;
+    const actionQuantityLabel = formatCartActionQuantity(actionQuantity, product);
 
     return `
       <div class="cart-item-actions cart-item-actions-stacked">
         <span class="cart-quantity-label">${quantityLabel}</span>
         <div class="cart-action-buttons">
-          <button class="mini-button" type="button" data-cart-action="increase" data-line-id="${lineId}" data-product-id="${productId}" data-cart-quantity="${increaseQuantity}">+ ${formatCartActionQuantity(increaseQuantity, product)}</button>
+          <button class="mini-button" type="button" data-cart-action="decrease" data-line-id="${lineId}" data-product-id="${productId}" data-cart-quantity="${actionQuantity}">- ${actionQuantityLabel}</button>
+          <button class="mini-button" type="button" data-cart-action="increase" data-line-id="${lineId}" data-product-id="${productId}" data-cart-quantity="${actionQuantity}">+ ${actionQuantityLabel}</button>
         </div>
       </div>
     `;
