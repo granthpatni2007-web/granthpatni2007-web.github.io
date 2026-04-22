@@ -1,11 +1,5 @@
 const products = [
   {
-    id: "bura",
-    name: "Bura",
-    price: 120,
-    description: "Traditional recipe made with premium ingredients. Perfect for sharing or gifting."
-  },
-  {
     id: "bhujia",
     name: "Bhujia",
     price: 400,
