@@ -49,6 +49,7 @@ const currency = new Intl.NumberFormat("en-IN", {
 const storageKey = "Antarmana-cart";
 const ordersStorageKey = "Antarmana-orders";
 const cartLineSeparator = "::";
+const ownerWhatsAppNumber = "917980232362";
 const cart = loadCart();
 
 const productGrid = document.getElementById("productGrid");
@@ -671,7 +672,7 @@ function handleCheckoutSubmit(event) {
     total: order.total,
     itemCount: order.items.length
   });
-  showToast(`Order ${order.id} saved for the owner dashboard`);
+  showToast(`Order ${order.id} saved. Opening WhatsApp...`);
   checkoutForm.reset();
   closeCart();
 
@@ -682,6 +683,7 @@ function handleCheckoutSubmit(event) {
   resetPaymentState("cod");
   setActivePayment("cod");
   document.getElementById("home").scrollIntoView({ behavior: "smooth", block: "start" });
+  openWhatsAppOrderMessage(order);
 }
 
 function showToast(message) {
@@ -741,6 +743,59 @@ function saveOrder(order) {
   const orders = loadOrders();
   orders.unshift(order);
   window.localStorage.setItem(ordersStorageKey, JSON.stringify(orders));
+}
+
+function openWhatsAppOrderMessage(order) {
+  const whatsappUrl = createWhatsAppOrderUrl(order);
+  trackAnalyticsEvent("whatsapp_order_message_opened", {
+    orderId: order.id,
+    total: order.total,
+    paymentMethod: order.paymentMethod
+  });
+  window.location.href = whatsappUrl;
+}
+
+function createWhatsAppOrderUrl(order) {
+  const message = encodeURIComponent(buildWhatsAppOrderMessage(order));
+  return `https://wa.me/${ownerWhatsAppNumber}?text=${message}`;
+}
+
+function buildWhatsAppOrderMessage(order) {
+  const itemLines = order.items.map((item) => {
+    const product = findProduct(item.id) || item;
+    const quantityLabel = formatQuantity(item.quantity, product);
+    return `- ${item.name}: ${quantityLabel} x ${currency.format(item.price)} = ${currency.format(item.lineTotal)}`;
+  });
+
+  const addressParts = [
+    order.address.street,
+    order.address.city,
+    order.address.postalCode
+  ].filter(Boolean);
+  const deliveryDate = order.address.deliveryDate || "Not selected";
+  const instructions = order.address.instructions || "None";
+  const paymentStatus = order.paymentStatus === "paid" ? "Paid" : "Pending";
+
+  return [
+    "New website order",
+    `Order ID: ${order.id}`,
+    `Customer: ${order.customer.name}`,
+    `Phone: ${order.customer.phone}`,
+    `Payment: ${order.paymentLabel}`,
+    `Payment Status: ${paymentStatus}`,
+    order.paymentReference ? `Payment Reference: ${order.paymentReference}` : null,
+    `Delivery Date: ${deliveryDate}`,
+    `Address: ${addressParts.join(", ")}`,
+    `Instructions: ${instructions}`,
+    "",
+    "Items:",
+    ...itemLines,
+    "",
+    `Total: ${currency.format(order.total)}`,
+    "Please confirm this order."
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
 }
 
 function buildOrderPayload(formData, paymentType, totals) {
