@@ -497,6 +497,13 @@ svg {
   flex-wrap: wrap;
 }
 
+.product-action-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
 .cart-qty-control {
   display: inline-flex;
   align-items: center;
@@ -533,6 +540,17 @@ svg {
 
 .add-button {
   min-width: 190px;
+}
+
+.product-action-group .add-button {
+  min-width: 0;
+  width: 100%;
+}
+
+.add-button-soft {
+  color: var(--earth);
+  background: rgba(255, 246, 228, 0.96);
+  box-shadow: 0 14px 26px rgba(181, 119, 46, 0.16);
 }
 
 .checkout-header {
@@ -1082,9 +1100,26 @@ textarea {
   gap: 8px;
 }
 
+.cart-item-actions-stacked {
+  display: grid;
+  align-items: start;
+  gap: 8px;
+}
+
+.cart-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cart-quantity-label {
+  font-weight: 900;
+}
+
 .mini-button {
   min-width: 34px;
   height: 34px;
+  padding: 0 10px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.9);
   color: var(--text);
@@ -1237,6 +1272,10 @@ textarea {
   .product-card h3,
   .product-price {
     font-size: 1.7rem;
+  }
+
+  .product-action-group {
+    grid-template-columns: 1fr;
   }
 
   .product-card-top,

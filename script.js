@@ -152,9 +152,7 @@ function renderProducts() {
             <p>${product.description}</p>
             ${minimumNote}
             <div class="product-footer">
-              <button class="primary-button add-button" type="button" data-action="add">
-                ${getAddButtonLabel(product)}
-              </button>
+              ${getProductActionButtons(product)}
             </div>
           </div>
         </article>
@@ -186,13 +184,14 @@ function handleProductGridClick(event) {
   const action = actionButton.dataset.action;
 
   if (action === "add") {
-    addToCart(productId, minQuantity);
+    const requestedQuantity = Number(actionButton.dataset.quantity) || minQuantity;
+    const addedQuantity = addToCart(productId, requestedQuantity);
     trackAnalyticsEvent("add_to_cart", {
       productId,
       productName: product.name,
-      quantity: minQuantity
+      quantity: addedQuantity
     });
-    showToast(`${product.name} added to cart (${formatQuantity(minQuantity, product)})`);
+    showToast(`${product.name} added to cart (${formatQuantity(addedQuantity, product)})`);
     openCart();
   }
 }
@@ -203,11 +202,17 @@ function addToCart(productId, quantity) {
     return;
   }
 
-  const safeQuantity = Math.max(getProductMinQuantity(product), Number(quantity) || 0);
-  cart[productId] = normalizeQuantity((cart[productId] || 0) + safeQuantity);
+  const currentQuantity = Number(cart[productId] || 0);
+  const requestedQuantity = normalizeQuantity(Number(quantity) || 0);
+  const minimumAddQuantity = currentQuantity > 0 || getProductUnit(product) === "kg"
+    ? getProductStep(product)
+    : getProductMinQuantity(product);
+  const safeQuantity = Math.max(minimumAddQuantity, requestedQuantity);
+  cart[productId] = normalizeQuantity(currentQuantity + safeQuantity);
   saveCart();
   renderCart();
   resetPaymentState(getActivePaymentMethod());
+  return safeQuantity;
 }
 
 function handleCartClick(event) {
@@ -227,12 +232,14 @@ function handleCartClick(event) {
   const minQuantity = getProductMinQuantity(product);
 
   if (action === "increase") {
-    cart[productId] = normalizeQuantity(cart[productId] + step);
+    const addQuantity = Number(button.dataset.cartQuantity) || step;
+    cart[productId] = normalizeQuantity(cart[productId] + addQuantity);
   }
 
   if (action === "decrease") {
     const nextQuantity = normalizeQuantity(cart[productId] - step);
-    if (nextQuantity < minQuantity) {
+    const minimumRemaining = getProductUnit(product) === "kg" ? step : minQuantity;
+    if (nextQuantity < minimumRemaining) {
       delete cart[productId];
     } else {
       cart[productId] = nextQuantity;
@@ -288,7 +295,6 @@ function renderCart() {
       }
 
       const lineTotal = product.price * quantity;
-      const quantityLabel = formatQuantity(quantity, product);
 
       return `
         <article class="cart-item">
@@ -300,11 +306,7 @@ function renderCart() {
             <strong>${currency.format(lineTotal)}</strong>
           </div>
           <div class="cart-item-footer">
-            <div class="cart-item-actions">
-              <button class="mini-button" type="button" data-cart-action="decrease" data-product-id="${productId}">−</button>
-              <span>${quantityLabel}</span>
-              <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}">+</button>
-            </div>
+            ${getCartQuantityControls(productId, quantity, product)}
             <button class="mini-button remove-button" type="button" data-cart-action="remove" data-product-id="${productId}">
               Remove
             </button>
@@ -313,10 +315,6 @@ function renderCart() {
       `;
     })
     .join("");
-
-  cartItems.querySelectorAll('[data-cart-action="decrease"]').forEach((button) => {
-    button.textContent = "-";
-  });
 
   summaryItems.innerHTML = entries
     .map(([productId, quantity]) => {
@@ -390,6 +388,10 @@ function formatQuantity(quantity, product) {
 function getMinimumOrderNote(product) {
   const minQuantity = getProductMinQuantity(product);
   const step = getProductStep(product);
+  if (getProductUnit(product) === "kg") {
+    return `<p class="product-minimum-note"><strong>Choose: ${formatQuantity(minQuantity, product)} or ${formatQuantity(step, product)}</strong><span>Cart me bhi +${formatQuantity(minQuantity, product)} / +${formatQuantity(step, product)} available hai.</span></p>`;
+  }
+
   if (minQuantity <= 1 && step >= 1) {
     return "";
   }
@@ -397,8 +399,55 @@ function getMinimumOrderNote(product) {
   return `<p class="product-minimum-note"><strong>Minimum: ${formatQuantity(minQuantity, product)}</strong><span>Cart me + se ${formatQuantity(step, product)} add kare.</span></p>`;
 }
 
-function getAddButtonLabel(product) {
-  return `Add ${formatQuantity(getProductMinQuantity(product), product)}`;
+function getProductActionButtons(product) {
+  const minQuantity = getProductMinQuantity(product);
+  const step = getProductStep(product);
+
+  if (getProductUnit(product) === "kg") {
+    return `
+      <div class="product-action-group">
+        <button class="primary-button add-button" type="button" data-action="add" data-quantity="${minQuantity}">
+          Add ${formatQuantity(minQuantity, product)}
+        </button>
+        <button class="secondary-button add-button add-button-soft" type="button" data-action="add" data-quantity="${step}">
+          Add ${formatQuantity(step, product)}
+        </button>
+      </div>
+    `;
+  }
+
+  return `
+    <button class="primary-button add-button" type="button" data-action="add" data-quantity="${minQuantity}">
+      Add ${formatQuantity(minQuantity, product)}
+    </button>
+  `;
+}
+
+function getCartQuantityControls(productId, quantity, product) {
+  const step = getProductStep(product);
+  const minQuantity = getProductMinQuantity(product);
+  const quantityLabel = formatQuantity(quantity, product);
+
+  if (getProductUnit(product) === "kg") {
+    return `
+      <div class="cart-item-actions cart-item-actions-stacked">
+        <span class="cart-quantity-label">${quantityLabel}</span>
+        <div class="cart-action-buttons">
+          <button class="mini-button" type="button" data-cart-action="decrease" data-product-id="${productId}">- ${formatQuantity(step, product)}</button>
+          <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}" data-cart-quantity="${step}">+ ${formatQuantity(step, product)}</button>
+          <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}" data-cart-quantity="${minQuantity}">+ ${formatQuantity(minQuantity, product)}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="cart-item-actions">
+      <button class="mini-button" type="button" data-cart-action="decrease" data-product-id="${productId}">- ${formatQuantity(step, product)}</button>
+      <span>${quantityLabel}</span>
+      <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}" data-cart-quantity="${step}">+ ${formatQuantity(step, product)}</button>
+    </div>
+  `;
 }
 
 function formatWeightQuantity(quantity) {
