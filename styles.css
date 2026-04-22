@@ -468,27 +468,6 @@ svg {
   line-height: 1.8;
 }
 
-.product-card-body .product-minimum-note {
-  display: grid;
-  gap: 4px;
-  margin: -10px 0 24px;
-  border: 1px solid rgba(181, 119, 46, 0.18);
-  border-radius: 18px;
-  background: rgba(255, 246, 228, 0.8);
-  color: var(--earth);
-  font-size: 0.9rem;
-  line-height: 1.4;
-  padding: 10px 12px;
-}
-
-.product-card-body .product-minimum-note strong {
-  font-weight: 900;
-}
-
-.product-card-body .product-minimum-note span {
-  font-weight: 800;
-}
-
 .product-footer {
   display: flex;
   align-items: center;

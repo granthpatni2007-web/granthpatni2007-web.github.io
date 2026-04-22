@@ -380,17 +380,7 @@ function formatQuantity(quantity, product) {
 }
 
 function getMinimumOrderNote(product) {
-  const minQuantity = getProductMinQuantity(product);
-  const step = getProductStep(product);
-  if (getProductUnit(product) === "kg") {
-    return `<p class="product-minimum-note"><strong>Choose: ${formatQuantity(minQuantity, product)} or ${formatQuantity(step, product)}</strong><span>Cart me bhi +${formatQuantity(minQuantity, product)} / +${formatQuantity(step, product)} available hai.</span></p>`;
-  }
-
-  if (minQuantity <= 1 && step >= 1) {
-    return "";
-  }
-
-  return `<p class="product-minimum-note"><strong>Minimum: ${formatQuantity(minQuantity, product)}</strong><span>Cart me + se ${formatQuantity(step, product)} add kare.</span></p>`;
+  return "";
 }
 
 function getProductActionButtons(product) {
