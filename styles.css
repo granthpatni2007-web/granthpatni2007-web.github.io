@@ -489,7 +489,6 @@ svg {
   flex-wrap: wrap;
 }
 
-.qty-control,
 .cart-qty-control {
   display: inline-flex;
   align-items: center;

@@ -152,13 +152,6 @@ function renderProducts() {
             <p>${product.description}</p>
             ${minimumNote}
             <div class="product-footer">
-              <div class="qty-control">
-                <div class="stepper" aria-label="Quantity selector for ${product.name}">
-                  <button class="qty-button" type="button" data-action="decrease">−</button>
-                  <span class="qty-value" data-quantity="${getProductMinQuantity(product)}">${formatQuantity(getProductMinQuantity(product), product)}</span>
-                  <button class="qty-button" type="button" data-action="increase">+</button>
-                </div>
-              </div>
               <button class="primary-button add-button" type="button" data-action="add">
                 Add to Cart
               </button>
@@ -170,9 +163,6 @@ function renderProducts() {
     )
     .join("");
 
-  productGrid.querySelectorAll('[data-action="decrease"]').forEach((button) => {
-    button.textContent = "-";
-  });
 }
 
 function handleProductGridClick(event) {
@@ -192,30 +182,17 @@ function handleProductGridClick(event) {
     return;
   }
 
-  const qtyValue = card.querySelector(".qty-value");
   const minQuantity = getProductMinQuantity(product);
-  const step = getProductStep(product);
-  const currentQty = Number(qtyValue.dataset.quantity) || minQuantity;
   const action = actionButton.dataset.action;
 
-  if (action === "increase") {
-    setQuantityValue(qtyValue, normalizeQuantity(currentQty + step), product);
-    return;
-  }
-
-  if (action === "decrease") {
-    setQuantityValue(qtyValue, Math.max(minQuantity, normalizeQuantity(currentQty - step)), product);
-    return;
-  }
-
   if (action === "add") {
-    addToCart(productId, currentQty);
+    addToCart(productId, minQuantity);
     trackAnalyticsEvent("add_to_cart", {
       productId,
       productName: product.name,
-      quantity: currentQty
+      quantity: minQuantity
     });
-    showToast(`${product.name} added to cart`);
+    showToast(`${product.name} added to cart (${formatQuantity(minQuantity, product)})`);
     openCart();
   }
 }
@@ -418,11 +395,6 @@ function getMinimumOrderNote(product) {
   }
 
   return `<p class="product-minimum-note">Minimum order: ${formatQuantity(minQuantity, product)}. After that, add ${formatQuantity(step, product)} at a time.</p>`;
-}
-
-function setQuantityValue(element, quantity, product) {
-  element.dataset.quantity = String(quantity);
-  element.textContent = formatQuantity(quantity, product);
 }
 
 function formatWeightQuantity(quantity) {
