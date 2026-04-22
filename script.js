@@ -433,15 +433,10 @@ function getCartQuantityControls(productId, quantity, product) {
   const quantityLabel = formatQuantity(quantity, product);
 
   if (getProductUnit(product) === "kg") {
-    const hasMinimumQuantity = quantity >= minQuantity;
-    const gramButtonState = hasMinimumQuantity ? "" : "disabled aria-disabled=\"true\"";
-
     return `
       <div class="cart-item-actions cart-item-actions-stacked">
         <span class="cart-quantity-label">${quantityLabel}</span>
         <div class="cart-action-buttons">
-          <button class="mini-button" type="button" data-cart-action="decrease" data-product-id="${productId}">- ${formatQuantity(step, product)}</button>
-          <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}" data-cart-quantity="${step}" ${gramButtonState}>+ ${formatQuantity(step, product)}</button>
           <button class="mini-button" type="button" data-cart-action="increase" data-product-id="${productId}" data-cart-quantity="${minQuantity}">+ ${formatQuantity(minQuantity, product)}</button>
         </div>
       </div>
