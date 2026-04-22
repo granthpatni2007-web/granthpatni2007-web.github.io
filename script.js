@@ -408,6 +408,11 @@ function getProductIdFromCartLine(lineId) {
   return String(lineId || "").split(cartLineSeparator)[0];
 }
 
+function getQuantityFromCartLine(lineId) {
+  const rawQuantity = String(lineId || "").split(cartLineSeparator)[1];
+  return normalizeQuantity(Number(rawQuantity) || 0);
+}
+
 function getProductUnit(product) {
   return product?.unit || "kg";
 }
@@ -433,6 +438,15 @@ function formatQuantity(quantity, product) {
   }
 
   return `${formatNumber(value)} ${unit}`;
+}
+
+function formatCartActionQuantity(quantity, product) {
+  const value = normalizeQuantity(quantity);
+  if (getProductUnit(product) === "kg" && value < 1) {
+    return `${Math.round(value * 1000)}g`;
+  }
+
+  return formatQuantity(value, product);
 }
 
 function getMinimumOrderNote(product) {
@@ -472,11 +486,15 @@ function getCartQuantityControls(lineId, productId, quantity, product) {
   const quantityLabel = formatQuantity(quantity, product);
 
   if (getProductUnit(product) === "kg") {
+    const baseLineQuantity = getQuantityFromCartLine(lineId);
+    const increaseQuantity =
+      baseLineQuantity > 0 && baseLineQuantity < minQuantity ? step : minQuantity;
+
     return `
       <div class="cart-item-actions cart-item-actions-stacked">
         <span class="cart-quantity-label">${quantityLabel}</span>
         <div class="cart-action-buttons">
-          <button class="mini-button" type="button" data-cart-action="increase" data-line-id="${lineId}" data-product-id="${productId}" data-cart-quantity="${minQuantity}">+ ${formatQuantity(minQuantity, product)}</button>
+          <button class="mini-button" type="button" data-cart-action="increase" data-line-id="${lineId}" data-product-id="${productId}" data-cart-quantity="${increaseQuantity}">+ ${formatCartActionQuantity(increaseQuantity, product)}</button>
         </div>
       </div>
     `;
