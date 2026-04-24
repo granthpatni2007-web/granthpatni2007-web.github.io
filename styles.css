@@ -757,6 +757,20 @@ textarea {
   line-height: 1.7;
 }
 
+.qr-copy .qr-highlight-note {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(181, 119, 46, 0.34);
+  border-radius: 16px;
+  background: rgba(255, 246, 228, 0.92);
+  color: var(--earth);
+  line-height: 1.6;
+}
+
+.qr-copy .qr-highlight-note strong {
+  font-weight: 800;
+}
+
 .cod-panel {
   display: grid;
   gap: 18px;
