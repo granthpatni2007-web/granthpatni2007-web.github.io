@@ -589,6 +589,10 @@ function getActivePaymentMethod() {
 }
 
 function isPaymentCompleted(method) {
+  if (method === "qr") {
+    return true;
+  }
+
   return paymentState.paid && paymentState.method === method;
 }
 
@@ -658,8 +662,9 @@ function updatePaymentGate() {
       return;
     }
 
-    paymentStatusTitle.textContent = "QR Payment Confirmed";
-    paymentStatusText.textContent = `Payment reference ${paymentState.reference} confirmed. You can place the order now.`;
+    paymentStatusTitle.textContent = "QR Payment Selected";
+    paymentStatusText.textContent =
+      "After payment, place the order and share the payment screenshot on WhatsApp.";
     return;
   }
 
@@ -668,7 +673,7 @@ function updatePaymentGate() {
   paymentStatusText.textContent =
     activePayment === "cod"
       ? "Select cash on delivery first to unlock order placement."
-      : "Confirm QR payment first to unlock order placement.";
+      : "Choose QR payment to unlock order placement.";
 }
 
 function handleCheckoutSubmit(event) {
@@ -689,7 +694,7 @@ function handleCheckoutSubmit(event) {
     showToast(
       activePayment === "cod"
         ? "Select cash on delivery first before placing the order"
-        : "Confirm QR payment first before placing the order"
+        : "Choose QR payment before placing the order"
     );
     updatePaymentGate();
     return;
@@ -863,9 +868,9 @@ function buildOrderPayload(formData, paymentType, totals) {
     status: "new",
     paymentMethod: paymentType,
     paymentLabel: getPaymentLabel(paymentType),
-    paymentStatus: paymentType === "cod" ? "pending" : "paid",
-    paymentReference: paymentType === "cod" ? "" : paymentState.reference,
-    paymentPaidAt: paymentType === "cod" ? "" : paymentState.paidAt,
+    paymentStatus: "pending",
+    paymentReference: "",
+    paymentPaidAt: "",
     customer,
     address,
     items,
