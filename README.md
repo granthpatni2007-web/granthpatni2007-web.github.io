@@ -17,3 +17,10 @@ Files for the live storefront:
 - `script.js`
 - `owner.js`
 - `analytics.js`
+- `site-config.js`
+- `order-store.js`
+
+Database-ready backend starter:
+
+- `backend/server.js`
+- `backend/README.md`

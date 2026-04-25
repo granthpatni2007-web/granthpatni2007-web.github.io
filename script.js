@@ -47,7 +47,7 @@ const currency = new Intl.NumberFormat("en-IN", {
 });
 
 const storageKey = "Antarmana-cart";
-const ordersStorageKey = "Antarmana-orders";
+const ordersStorageKey = window.antarmanaOrderStore?.storageKey || "Antarmana-orders";
 const cartLineSeparator = "::";
 const ownerWhatsAppNumber = "917980232362";
 const cart = loadCart();
@@ -676,7 +676,7 @@ function updatePaymentGate() {
       : "Choose QR payment to unlock order placement.";
 }
 
-function handleCheckoutSubmit(event) {
+async function handleCheckoutSubmit(event) {
   event.preventDefault();
 
   const totals = getCartTotals();
@@ -702,15 +702,29 @@ function handleCheckoutSubmit(event) {
 
   const formData = new FormData(checkoutForm);
   const order = buildOrderPayload(formData, activePayment, totals);
+  let savedOrder = order;
 
-  saveOrder(order);
+  try {
+    const persistedOrder = await saveOrder(order);
+    if (persistedOrder && typeof persistedOrder === "object") {
+      savedOrder = {
+        ...order,
+        ...persistedOrder
+      };
+    }
+  } catch (error) {
+    console.error("Unable to save order", error);
+    showToast("Order save nahin hua. Please try again.");
+    return;
+  }
+
   trackAnalyticsEvent("order_submitted", {
-    orderId: order.id,
-    paymentMethod: order.paymentMethod,
-    total: order.total,
-    itemCount: order.items.length
+    orderId: savedOrder.id,
+    paymentMethod: savedOrder.paymentMethod,
+    total: savedOrder.total,
+    itemCount: savedOrder.items.length
   });
-  showToast(`Order ${order.id} saved. Opening WhatsApp...`);
+  showToast(`Order ${savedOrder.id} saved. Opening WhatsApp...`);
   checkoutForm.reset();
   closeCart();
 
@@ -721,7 +735,7 @@ function handleCheckoutSubmit(event) {
   resetPaymentState("cod");
   setActivePayment("cod");
   document.getElementById("home").scrollIntoView({ behavior: "smooth", block: "start" });
-  openWhatsAppOrderMessage(order);
+  openWhatsAppOrderMessage(savedOrder);
 }
 
 function showToast(message) {
@@ -777,10 +791,15 @@ function loadOrders() {
   }
 }
 
-function saveOrder(order) {
+async function saveOrder(order) {
+  if (window.antarmanaOrderStore?.createOrder) {
+    return window.antarmanaOrderStore.createOrder(order);
+  }
+
   const orders = loadOrders();
   orders.unshift(order);
   window.localStorage.setItem(ordersStorageKey, JSON.stringify(orders));
+  return order;
 }
 
 function openWhatsAppOrderMessage(order) {

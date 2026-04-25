@@ -293,9 +293,9 @@
               <section class="owner-sidebar-card owner-note-card">
                 <span class="eyebrow">Note</span>
                 <p>
-                  This version stores orders in browser local storage. It works
-                  well for a local demo or a single-device setup, and can later
-                  be upgraded to a shared database.
+                  This dashboard works in browser-only mode by default. To use a
+                  shared database across phones and devices, connect a backend API
+                  in <code>site-config.js</code>.
                 </p>
               </section>
             </aside>
@@ -306,7 +306,9 @@
 
     <p class="owner-notification-live" id="ownerNotificationLive" aria-live="polite"></p>
 
+    <script src="site-config.js"></script>
     <script src="analytics.js"></script>
+    <script src="order-store.js"></script>
     <script src="owner.js"></script>
   </body>
 </html>

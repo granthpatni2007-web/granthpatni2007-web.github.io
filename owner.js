@@ -1,6 +1,6 @@
-const ordersStorageKey = "Antarmana-orders";
-const ordersResetKey = "sapna-patni-orders-reset-2026-04-17";
+const ordersStorageKey = window.antarmanaOrderStore?.storageKey || "Antarmana-orders";
 const ownerAccessSessionKey = "Antarmana-owner-access";
+const ownerDatabaseSessionKey = "Antarmana-owner-db-token";
 const ownerPasscodes = new Set(["owner123", "antarmana123"]);
 
 const currency = new Intl.NumberFormat("en-IN", {
@@ -63,6 +63,9 @@ let unreadOrderIds = new Set();
 let latestNotificationText = "Waiting for new orders";
 let notificationAudioContext = null;
 let notificationRingTimeoutId = 0;
+let ordersState = [];
+let dashboardPollingId = 0;
+let ownerTokenPrompted = false;
 const baseOwnerTitle = document.title;
 
 init();
@@ -87,14 +90,15 @@ function init() {
   showOwnerLockScreen();
 }
 
-function initializeDashboard() {
+async function initializeDashboard() {
   if (dashboardInitialized) {
-    renderDashboard();
-    updateNotificationBell();
+    startOrderPolling();
+    await syncDashboardOrders("resume");
     return;
   }
 
   dashboardInitialized = true;
+  await refreshOrdersState({ silent: true });
   syncKnownOrders(getOrders());
   renderDashboard();
   updateNotificationBell();
@@ -119,14 +123,155 @@ function initializeDashboard() {
       syncDashboardOrders("storage");
     }
   });
+  window.addEventListener("antarmana-orders-changed", () => {
+    syncDashboardOrders("local");
+  });
   window.addEventListener("focus", handleOwnerWindowFocus);
+  startOrderPolling();
+}
+
+function isRemoteOrderMode() {
+  return Boolean(window.antarmanaOrderStore?.isRemoteMode?.());
+}
+
+function getOrderPollIntervalMs() {
+  return window.antarmanaOrderStore?.getPollIntervalMs?.() || 15000;
+}
+
+function getOwnerApiToken() {
+  return String(window.sessionStorage.getItem(ownerDatabaseSessionKey) || "").trim();
+}
+
+function setOwnerApiToken(token) {
+  const normalizedToken = String(token || "").trim();
+
+  if (!normalizedToken) {
+    window.sessionStorage.removeItem(ownerDatabaseSessionKey);
+    return "";
+  }
+
+  window.sessionStorage.setItem(ownerDatabaseSessionKey, normalizedToken);
+  return normalizedToken;
+}
+
+function clearOwnerApiToken() {
+  ownerTokenPrompted = false;
+  window.sessionStorage.removeItem(ownerDatabaseSessionKey);
+}
+
+async function ensureRemoteOwnerAccess() {
+  if (!isRemoteOrderMode()) {
+    return true;
+  }
+
+  if (getOwnerApiToken()) {
+    return true;
+  }
+
+  if (ownerTokenPrompted) {
+    return false;
+  }
+
+  ownerTokenPrompted = true;
+  const token = window.prompt("Enter your owner database token to load shared orders.") || "";
+  const savedToken = setOwnerApiToken(token);
+
+  if (!savedToken) {
+    announceNotification("Shared database token is required for owner dashboard access.");
+    return false;
+  }
+
+  return true;
+}
+
+function getOwnerStoreOptions() {
+  const ownerToken = getOwnerApiToken();
+  return ownerToken ? { ownerToken } : {};
+}
+
+function startOrderPolling() {
+  stopOrderPolling();
+
+  if (!isRemoteOrderMode()) {
+    return;
+  }
+
+  dashboardPollingId = window.setInterval(() => {
+    syncDashboardOrders("poll");
+  }, getOrderPollIntervalMs());
+}
+
+function stopOrderPolling() {
+  if (!dashboardPollingId) {
+    return;
+  }
+
+  window.clearInterval(dashboardPollingId);
+  dashboardPollingId = 0;
+}
+
+function handleOrderSyncError(error, fallbackMessage) {
+  console.error("Unable to sync orders", error);
+
+  if (error?.status === 401 || error?.status === 403) {
+    clearOwnerApiToken();
+  }
+
+  if (fallbackMessage) {
+    announceNotification(fallbackMessage);
+  }
+}
+
+function loadOrdersFromLocalStorage() {
+  try {
+    const savedValue = window.localStorage.getItem(ordersStorageKey);
+    return savedValue ? normalizeOrdersCollection(JSON.parse(savedValue)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeOrdersCollection(orders) {
+  if (!Array.isArray(orders)) {
+    return [];
+  }
+
+  return orders.map(normalizeOrderTotals);
+}
+
+async function refreshOrdersState(options = {}) {
+  const { silent = false } = options;
+  const orderStore = window.antarmanaOrderStore;
+
+  if (!orderStore?.listOrders) {
+    ordersState = loadOrdersFromLocalStorage();
+    return ordersState;
+  }
+
+  if (!(await ensureRemoteOwnerAccess()) && isRemoteOrderMode()) {
+    return ordersState;
+  }
+
+  try {
+    const nextOrders = await orderStore.listOrders(getOwnerStoreOptions());
+    ordersState = normalizeOrdersCollection(nextOrders);
+  } catch (error) {
+    handleOrderSyncError(
+      error,
+      silent ? "" : "Shared orders abhi load nahin ho pa rahe. Please try again."
+    );
+  }
+
+  return ordersState;
 }
 
 function handleOwnerWindowFocus() {
   syncDashboardOrders("focus");
 }
 
-function syncDashboardOrders(source) {
+async function syncDashboardOrders(source) {
+  await refreshOrdersState({ silent: source === "poll" });
+
   const orders = getOrders();
   const incomingOrders = extractIncomingOrders(orders);
 
@@ -349,6 +494,7 @@ function unlockOwnerDashboard(shouldFocusTop) {
 }
 
 function lockOwnerDashboard() {
+  stopOrderPolling();
   window.sessionStorage.removeItem(ownerAccessSessionKey);
 
   if (ownerDashboardShell) {
@@ -692,7 +838,7 @@ function handleOrderListClick(event) {
   }
 }
 
-function handleOrderStatusChange(event) {
+async function handleOrderStatusChange(event) {
   const select = event.target.closest(".status-select");
   if (!select) {
     return;
@@ -701,13 +847,24 @@ function handleOrderStatusChange(event) {
   const orderId = select.dataset.orderId;
   const nextStatus = select.value;
   const orders = getOrders();
+  const currentOrder = orders.find((order) => order.id === orderId);
+  if (!currentOrder) {
+    return;
+  }
+
   const nextOrders = orders.map((order) =>
     order.id === orderId
       ? { ...order, status: nextStatus }
       : order
   );
 
-  setOrders(nextOrders);
+  try {
+    await setOrders(nextOrders);
+  } catch {
+    select.value = currentOrder.status;
+    return;
+  }
+
   trackAnalyticsEvent("owner_order_status_updated", {
     orderId,
     status: nextStatus
@@ -715,7 +872,7 @@ function handleOrderStatusChange(event) {
   renderDashboard();
 }
 
-function loadSampleOrders() {
+async function loadSampleOrders() {
   const orders = getOrders();
   const existingIds = new Set(orders.map((order) => order.id));
   const missingSamples = sampleOrders.filter((order) => !existingIds.has(order.id));
@@ -724,7 +881,12 @@ function loadSampleOrders() {
     return;
   }
 
-  setOrders([...missingSamples, ...orders]);
+  try {
+    await setOrders([...missingSamples, ...orders]);
+  } catch {
+    return;
+  }
+
   renderDashboard();
 }
 
@@ -737,34 +899,61 @@ function clearFilters() {
   renderDashboard();
 }
 
-function clearAllOrders() {
-  setOrders([]);
+async function clearAllOrders() {
+  try {
+    await setOrders([]);
+  } catch {
+    return;
+  }
+
   trackAnalyticsEvent("owner_cleared_orders");
   clearFilters();
+  renderDashboard();
 }
 
 function getOrders() {
-  try {
-    const savedValue = window.localStorage.getItem(ordersStorageKey);
-    return savedValue ? JSON.parse(savedValue).map(normalizeOrderTotals) : [];
-  } catch {
-    return [];
-  }
+  return ordersState;
 }
 
-function setOrders(orders) {
-  window.localStorage.setItem(ordersStorageKey, JSON.stringify(orders));
-  syncKnownOrders(orders);
+async function setOrders(orders) {
+  const previousOrders = [...ordersState];
+  const normalizedOrders = normalizeOrdersCollection(orders);
+
+  if (!(await ensureRemoteOwnerAccess()) && isRemoteOrderMode()) {
+    throw new Error("Owner token required.");
+  }
+
+  try {
+    if (window.antarmanaOrderStore?.replaceOrders) {
+      const persistedOrders = await window.antarmanaOrderStore.replaceOrders(
+        normalizedOrders,
+        getOwnerStoreOptions()
+      );
+      ordersState = normalizeOrdersCollection(persistedOrders);
+    } else {
+      window.localStorage.setItem(ordersStorageKey, JSON.stringify(normalizedOrders));
+      ordersState = normalizedOrders;
+    }
+  } catch (error) {
+    ordersState = previousOrders;
+    handleOrderSyncError(error, "Orders abhi save nahin ho pa rahe. Please try again.");
+    throw error;
+  }
+
+  syncKnownOrders(ordersState);
   updateNotificationBell();
+  return ordersState;
 }
 
 function normalizeOrderTotals(order) {
-  const subtotal = Number(order.subtotal || 0);
+  const subtotal = Number(order.subtotal || order.total || 0);
+  const shipping = Number(order.shipping || 0);
 
   return {
     ...order,
-    shipping: 0,
-    total: subtotal
+    subtotal,
+    shipping,
+    total: subtotal + shipping
   };
 }
 
