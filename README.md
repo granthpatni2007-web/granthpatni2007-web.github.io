@@ -17,6 +17,7 @@ Files for the live storefront:
 - `script.js`
 - `owner.js`
 - `analytics.js`
+- `firebase-init.js`
 - `site-config.js`
 - `order-store.js`
 
