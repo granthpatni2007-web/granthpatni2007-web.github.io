@@ -771,6 +771,16 @@ textarea {
   font-weight: 800;
 }
 
+.qr-payment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.qr-payment-actions .secondary-button {
+  min-height: 52px;
+}
+
 .cod-panel {
   display: grid;
   gap: 18px;

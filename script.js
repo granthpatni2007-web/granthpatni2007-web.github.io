@@ -82,6 +82,7 @@ const placeOrderButton = document.getElementById("placeOrderButton");
 const paymentStatusBox = document.getElementById("paymentStatusBox");
 const paymentStatusTitle = document.getElementById("paymentStatusTitle");
 const paymentStatusText = document.getElementById("paymentStatusText");
+const sendScreenshotWhatsAppButton = document.getElementById("sendScreenshotWhatsAppButton");
 let paymentState = createPendingPaymentState("cod");
 
 if (closeCartButton) {
@@ -104,6 +105,7 @@ paymentTabs.forEach((button) => button.addEventListener("click", () => setActive
 paymentActionButtons.forEach((button) => {
   button.addEventListener("click", () => completePayment(button.dataset.completePayment));
 });
+sendScreenshotWhatsAppButton?.addEventListener("click", openWhatsAppScreenshotMessage);
 checkoutForm.addEventListener("submit", handleCheckoutSubmit);
 cartButton.addEventListener("click", openCart);
 closeCartButton.addEventListener("click", closeCart);
@@ -812,8 +814,23 @@ function openWhatsAppOrderMessage(order) {
   window.location.href = whatsappUrl;
 }
 
+function openWhatsAppScreenshotMessage() {
+  const whatsappUrl = createWhatsAppScreenshotUrl();
+  trackAnalyticsEvent("whatsapp_payment_screenshot_opened", {
+    paymentMethod: "qr"
+  });
+  window.location.href = whatsappUrl;
+}
+
 function createWhatsAppOrderUrl(order) {
   const message = encodeURIComponent(buildWhatsAppOrderMessage(order));
+  return `https://wa.me/${ownerWhatsAppNumber}?text=${message}`;
+}
+
+function createWhatsAppScreenshotUrl() {
+  const message = encodeURIComponent(
+    "Hello, I am sending my payment screenshot for Antarmana Sweets & Snacks."
+  );
   return `https://wa.me/${ownerWhatsAppNumber}?text=${message}`;
 }
 
