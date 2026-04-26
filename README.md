@@ -20,6 +20,8 @@ Files for the live storefront:
 - `firebase-init.js`
 - `site-config.js`
 - `order-store.js`
+- `firestore.rules`
+- `FIRESTORE-SETUP.md`
 
 Database-ready backend starter:
 

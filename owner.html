@@ -30,25 +30,36 @@
         <span class="owner-kicker">Owner only</span>
         <h1>Owner dashboard access</h1>
         <p class="owner-lock-copy">
-          Enter the owner passcode to open the dashboard and review orders,
-          payment details, and delivery locations.
+          Sign in with your Firebase owner email and password to open the
+          dashboard and review orders, payment details, and delivery locations.
         </p>
         <p class="owner-site-name">Website name: Antarmana Sweets &amp; Snacks</p>
 
         <form class="owner-lock-form" id="ownerUnlockForm">
-          <label class="owner-lock-field" for="ownerPasscode">
-            <span>Passcode</span>
+          <label class="owner-lock-field" for="ownerEmail">
+            <span>Email</span>
             <input
-              id="ownerPasscode"
+              id="ownerEmail"
+              type="email"
+              placeholder="Enter owner email"
+              autocomplete="username"
+              required
+            />
+          </label>
+
+          <label class="owner-lock-field" for="ownerPassword">
+            <span>Password</span>
+            <input
+              id="ownerPassword"
               type="password"
-              placeholder="Enter owner passcode"
+              placeholder="Enter owner password"
               autocomplete="current-password"
               required
             />
           </label>
 
           <p class="owner-lock-error" id="ownerUnlockError" hidden>
-            Wrong passcode. Please try again.
+            Sign-in failed. Please check your email and password.
           </p>
 
           <div class="owner-lock-actions">
@@ -133,10 +144,10 @@
                 <span class="owner-kicker">Business control</span>
                 <h1>Check what was ordered and where it needs to go.</h1>
                 <p>
-                  Every completed checkout from the storefront is saved here on
-                  this browser, so the owner can review items, customer contact
-                  details, payment method, and full delivery address in one
-                  place.
+                  Every completed checkout from the storefront is saved in a
+                  shared Firestore database, so the owner can review customer
+                  contact details, payment method, and full delivery address
+                  from any signed-in device.
                 </p>
                 <div class="owner-hero-actions">
                   <button
@@ -151,7 +162,7 @@
 
               <div class="owner-highlight-panel">
                 <article class="owner-highlight-card">
-                  <span>Live local dashboard</span>
+                  <span>Live Firestore dashboard</span>
                   <strong id="heroOrderCount">0 orders saved</strong>
                 </article>
                 <article class="owner-highlight-card accent">
@@ -293,9 +304,9 @@
               <section class="owner-sidebar-card owner-note-card">
                 <span class="eyebrow">Note</span>
                 <p>
-                  This dashboard works in browser-only mode by default. To use a
-                  shared database across phones and devices, connect a backend API
-                  in <code>site-config.js</code>.
+                  This dashboard now uses Firebase Auth for owner sign-in and
+                  Firestore for shared orders. Publish the rules in
+                  <code>firestore.rules</code> before using it in production.
                 </p>
               </section>
             </aside>
