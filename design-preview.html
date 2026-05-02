@@ -3,25 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Design Preview | Antarmana Sweets &amp; Snacks</title>
+    <title>Better Design Preview | Antarmana Sweets &amp; Snacks</title>
     <meta
       name="description"
-      content="Design preview options for Antarmana Sweets &amp; Snacks."
+      content="Improved website design preview options for Antarmana Sweets &amp; Snacks."
     />
     <link
       rel="canonical"
       href="https://granthpatni2007-web.github.io/design-preview.html"
     />
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;700;800&family=Outfit:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;700;800&family=Outfit:wght@400;500;700;800&display=swap");
 
       :root {
-        --page-bg: #f5efe7;
-        --page-text: #1d1714;
-        --page-muted: #6b6158;
+        --page-bg: #f6efe7;
+        --page-text: #211915;
+        --page-muted: #6f6459;
         --card-bg: rgba(255, 255, 255, 0.88);
-        --card-line: rgba(36, 24, 16, 0.08);
-        --shadow: 0 24px 60px rgba(52, 35, 25, 0.12);
+        --card-line: rgba(33, 25, 21, 0.08);
+        --shadow: 0 28px 65px rgba(58, 38, 27, 0.12);
       }
 
       * {
@@ -31,227 +31,315 @@
       body {
         margin: 0;
         background:
-          radial-gradient(circle at top left, rgba(233, 176, 91, 0.18), transparent 28%),
-          radial-gradient(circle at 90% 10%, rgba(211, 93, 54, 0.12), transparent 24%),
-          linear-gradient(180deg, #fffaf5 0%, var(--page-bg) 100%);
+          radial-gradient(circle at top left, rgba(239, 183, 91, 0.2), transparent 28%),
+          radial-gradient(circle at 90% 12%, rgba(203, 96, 56, 0.12), transparent 24%),
+          linear-gradient(180deg, #fffaf4 0%, var(--page-bg) 100%);
         color: var(--page-text);
         font-family: "Manrope", sans-serif;
       }
 
-      .shell {
-        width: min(1320px, calc(100vw - 24px));
+      .page {
+        width: min(1360px, calc(100vw - 24px));
         margin: 0 auto;
-        padding: 28px 0 56px;
+        padding: 26px 0 52px;
       }
 
       .intro {
-        margin-bottom: 26px;
+        margin-bottom: 24px;
         padding: 30px;
-        border-radius: 28px;
-        background: var(--card-bg);
+        border-radius: 30px;
         border: 1px solid var(--card-line);
+        background: var(--card-bg);
         box-shadow: var(--shadow);
       }
 
-      .intro span {
+      .intro-tag,
+      .theme-tag,
+      .mini-label {
         display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: 8px 12px;
         border-radius: 999px;
-        background: rgba(207, 105, 57, 0.12);
-        color: #a13c1d;
         font-size: 0.8rem;
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
+      .intro-tag {
+        background: rgba(201, 93, 53, 0.12);
+        color: #a13a1c;
+      }
+
       .intro h1 {
         margin: 16px 0 12px;
-        font-size: clamp(2.3rem, 5vw, 4rem);
-        line-height: 0.98;
+        font-size: clamp(2.4rem, 5vw, 4.4rem);
+        line-height: 0.96;
         letter-spacing: -0.05em;
       }
 
-      .intro p {
+      .intro p,
+      .theme-copy p,
+      .why-line {
         margin: 0;
-        max-width: 70ch;
         color: var(--page-muted);
         line-height: 1.8;
       }
 
-      .preview-grid {
+      .theme-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 22px;
+        gap: 24px;
       }
 
-      .preview-card {
-        border-radius: 30px;
+      .theme-card {
         overflow: hidden;
+        border-radius: 34px;
         border: 1px solid var(--card-line);
         background: var(--card-bg);
         box-shadow: var(--shadow);
       }
 
-      .preview-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 22px 24px;
-        border-bottom: 1px solid rgba(36, 24, 16, 0.08);
-      }
-
-      .preview-head h2 {
-        margin: 0 0 6px;
-        font-size: 1.45rem;
-      }
-
-      .preview-head p {
-        margin: 0;
-        color: var(--page-muted);
-        font-size: 0.95rem;
-      }
-
-      .preview-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 42px;
-        height: 42px;
-        border-radius: 999px;
-        background: rgba(36, 24, 16, 0.08);
-        font-weight: 800;
-      }
-
-      .mockup {
-        padding: 22px;
-      }
-
-      .mock-window {
-        border-radius: 26px;
-        overflow: hidden;
-        min-height: 640px;
-      }
-
-      .mock-nav,
-      .mock-hero,
-      .mock-products,
-      .mock-footer {
-        padding-left: 24px;
-        padding-right: 24px;
-      }
-
-      .mock-nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding-top: 20px;
-        padding-bottom: 20px;
-      }
-
-      .mock-brand {
-        font-weight: 800;
-        letter-spacing: -0.03em;
-      }
-
-      .mock-links {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
-      .mock-links span,
-      .mock-pill,
-      .mini-tag {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 999px;
-      }
-
-      .mock-links span {
-        padding: 8px 12px;
-        font-size: 0.82rem;
-      }
-
-      .mock-hero {
+      .theme-top {
         display: grid;
-        gap: 18px;
-        padding-top: 24px;
-        padding-bottom: 22px;
+        grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+        gap: 20px;
+        padding: 26px;
+        border-bottom: 1px solid rgba(33, 25, 21, 0.08);
       }
 
-      .mock-hero h3 {
-        margin: 0;
-        font-size: 2.35rem;
+      .theme-copy h2 {
+        margin: 16px 0 10px;
+        font-size: clamp(1.9rem, 3vw, 3rem);
         line-height: 0.98;
         letter-spacing: -0.05em;
       }
 
-      .mock-hero p {
-        margin: 0;
-        max-width: 38ch;
-        line-height: 1.7;
+      .theme-copy strong {
+        display: inline-block;
+        margin-top: 18px;
+        font-size: 1rem;
       }
 
-      .mock-actions {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
+      .theme-points {
+        display: grid;
+        gap: 10px;
       }
 
-      .mock-button {
-        padding: 12px 16px;
-        border-radius: 16px;
-        font-weight: 800;
+      .theme-point {
+        display: grid;
+        gap: 4px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.64);
+        border: 1px solid rgba(33, 25, 21, 0.06);
+      }
+
+      .theme-point strong {
+        font-size: 0.98rem;
+      }
+
+      .theme-point span {
+        color: var(--page-muted);
         font-size: 0.9rem;
+        line-height: 1.6;
       }
 
-      .mock-pills {
+      .screen {
+        padding: 24px;
+      }
+
+      .screen-window {
+        min-height: 580px;
+        overflow: hidden;
+        border-radius: 28px;
+      }
+
+      .window-nav,
+      .window-hero,
+      .window-products,
+      .window-bottom {
+        padding-left: 26px;
+        padding-right: 26px;
+      }
+
+      .window-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 22px;
+        padding-bottom: 18px;
+      }
+
+      .window-brand {
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .window-links {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
       }
 
-      .mock-pill {
+      .window-links span,
+      .hero-pill,
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+      }
+
+      .window-links span {
+        padding: 8px 12px;
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .window-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 290px;
+        gap: 18px;
+        align-items: stretch;
+        padding-top: 12px;
+        padding-bottom: 18px;
+      }
+
+      .hero-copy {
+        display: grid;
+        gap: 16px;
+        align-content: start;
+      }
+
+      .hero-pill {
+        width: fit-content;
+        padding: 8px 12px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hero-copy h3 {
+        margin: 0;
+        font-size: clamp(2rem, 3vw, 3.4rem);
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+      }
+
+      .hero-copy p {
+        margin: 0;
+        max-width: 38ch;
+        line-height: 1.8;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .hero-button {
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 0.92rem;
+        font-weight: 800;
+      }
+
+      .hero-chips {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .chip {
         padding: 9px 13px;
         font-size: 0.82rem;
         font-weight: 700;
       }
 
-      .mock-products {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        padding-bottom: 20px;
+      .hero-visual {
+        position: relative;
+        border-radius: 28px;
+        overflow: hidden;
+        min-height: 250px;
       }
 
-      .mock-product {
-        padding: 18px;
+      .visual-circle,
+      .visual-card,
+      .visual-strip {
+        position: absolute;
+      }
+
+      .visual-circle {
+        width: 190px;
+        height: 190px;
+        border-radius: 999px;
+        right: -36px;
+        top: -28px;
+      }
+
+      .visual-strip {
+        left: 20px;
+        right: 20px;
+        bottom: 18px;
+        height: 14px;
+        border-radius: 999px;
+      }
+
+      .visual-card {
+        left: 20px;
+        right: 20px;
+        bottom: 40px;
+        padding: 16px;
         border-radius: 22px;
       }
 
-      .mock-product strong {
+      .visual-card strong {
         display: block;
         margin-bottom: 6px;
-        font-size: 1.08rem;
+        font-size: 1.15rem;
       }
 
-      .mock-product span {
-        display: block;
-        margin-bottom: 10px;
-        font-weight: 800;
-      }
-
-      .mock-product p {
+      .visual-card p {
         margin: 0;
         line-height: 1.6;
         font-size: 0.9rem;
       }
 
-      .mock-footer {
+      .window-products {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        padding-bottom: 18px;
+      }
+
+      .product-box {
+        padding: 18px;
+        border-radius: 22px;
+      }
+
+      .product-box strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.05rem;
+      }
+
+      .product-box span {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 800;
+      }
+
+      .product-box p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .window-bottom {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -260,443 +348,635 @@
         padding-bottom: 22px;
       }
 
-      .mock-footer p {
+      .window-bottom p {
         margin: 0;
-        font-size: 0.88rem;
+        font-size: 0.9rem;
       }
 
-      .pick-note {
-        margin-top: 20px;
-        padding: 20px 22px;
-        border-radius: 22px;
-        background: rgba(255, 255, 255, 0.82);
+      .mini-label {
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .pick-box {
+        margin-top: 22px;
+        padding: 22px 24px;
+        border-radius: 24px;
         border: 1px solid var(--card-line);
-        color: var(--page-muted);
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: var(--shadow);
         line-height: 1.8;
       }
 
-      .pick-note strong {
-        color: var(--page-text);
+      .pick-box strong {
+        display: block;
+        margin-bottom: 4px;
       }
 
-      .theme-festive .mock-window {
+      .theme-1 .screen-window {
         background:
-          radial-gradient(circle at top left, rgba(241, 194, 109, 0.2), transparent 26%),
-          linear-gradient(180deg, #fff7eb 0%, #f7e3c9 100%);
-        color: #2c1b12;
+          radial-gradient(circle at top left, rgba(244, 200, 118, 0.22), transparent 30%),
+          linear-gradient(180deg, #fff8ec 0%, #f5dfbf 100%);
+        color: #2b1910;
       }
 
-      .theme-festive .mock-brand,
-      .theme-festive .mock-hero h3 {
+      .theme-1 .theme-copy h2,
+      .theme-1 .hero-copy h3,
+      .theme-1 .window-brand {
         font-family: "Cormorant Garamond", serif;
       }
 
-      .theme-festive .mock-links span,
-      .theme-festive .mock-pill,
-      .theme-festive .mock-product,
-      .theme-festive .mock-button.alt {
+      .theme-1 .theme-tag,
+      .theme-1 .hero-pill {
+        background: rgba(201, 92, 44, 0.14);
+        color: #982f14;
+      }
+
+      .theme-1 .window-links span,
+      .theme-1 .chip,
+      .theme-1 .product-box,
+      .theme-1 .hero-button.alt,
+      .theme-1 .visual-card {
         background: rgba(255, 255, 255, 0.72);
-        border: 1px solid rgba(80, 43, 24, 0.08);
+        border: 1px solid rgba(60, 33, 20, 0.08);
       }
 
-      .theme-festive .mock-button.main {
-        background: linear-gradient(135deg, #cc632f, #a03618);
+      .theme-1 .hero-button.main {
+        background: linear-gradient(135deg, #cf6330, #9c3217);
         color: #fff;
       }
 
-      .theme-festive .mock-pill {
-        color: #8b371a;
+      .theme-1 .product-box span,
+      .theme-1 .window-bottom .mini-label {
+        color: #a13a1c;
       }
 
-      .theme-festive .mock-product span {
-        color: #a83f1e;
+      .theme-1 .visual-circle {
+        background: radial-gradient(circle, rgba(205, 99, 48, 0.22), transparent 68%);
       }
 
-      .theme-clean .mock-window {
+      .theme-1 .visual-strip {
+        background: rgba(154, 50, 24, 0.16);
+      }
+
+      .theme-2 .screen-window {
         background: #ffffff;
-        color: #14212c;
+        color: #162332;
       }
 
-      .theme-clean .mock-brand,
-      .theme-clean .mock-hero h3 {
-        font-family: "Plus Jakarta Sans", sans-serif;
+      .theme-2 .theme-copy h2,
+      .theme-2 .hero-copy h3,
+      .theme-2 .window-brand {
+        font-family: "Fraunces", serif;
       }
 
-      .theme-clean .mock-nav {
-        border-bottom: 1px solid rgba(20, 33, 44, 0.08);
+      .theme-2 .window-nav,
+      .theme-2 .window-bottom {
+        border-top: 1px solid transparent;
       }
 
-      .theme-clean .mock-links span {
-        background: #eef3f8;
-        color: #36516a;
+      .theme-2 .theme-tag,
+      .theme-2 .hero-pill {
+        background: rgba(31, 78, 118, 0.12);
+        color: #224f73;
       }
 
-      .theme-clean .mock-button.main {
-        background: #1f3e57;
+      .theme-2 .window-links span,
+      .theme-2 .chip,
+      .theme-2 .product-box,
+      .theme-2 .hero-button.alt,
+      .theme-2 .visual-card {
+        background: #f4f8fb;
+        border: 1px solid rgba(22, 35, 50, 0.08);
+      }
+
+      .theme-2 .hero-button.main {
+        background: #1d4463;
         color: #fff;
       }
 
-      .theme-clean .mock-button.alt,
-      .theme-clean .mock-pill,
-      .theme-clean .mock-product {
-        background: #f7fafc;
-        border: 1px solid rgba(20, 33, 44, 0.08);
+      .theme-2 .product-box span,
+      .theme-2 .window-bottom .mini-label {
+        color: #25557b;
       }
 
-      .theme-clean .mock-product span {
-        color: #234966;
+      .theme-2 .visual-circle {
+        background: radial-gradient(circle, rgba(43, 103, 144, 0.18), transparent 68%);
       }
 
-      .theme-bright .mock-window {
+      .theme-2 .visual-strip {
+        background: rgba(30, 68, 99, 0.1);
+      }
+
+      .theme-3 .screen-window {
         background:
-          radial-gradient(circle at top right, rgba(255, 214, 110, 0.22), transparent 22%),
-          linear-gradient(180deg, #fff7f3 0%, #ffe8d5 100%);
-        color: #291816;
+          radial-gradient(circle at top right, rgba(255, 213, 108, 0.22), transparent 24%),
+          linear-gradient(180deg, #fff7f1 0%, #ffe2cc 100%);
+        color: #291715;
       }
 
-      .theme-bright .mock-brand,
-      .theme-bright .mock-hero h3 {
+      .theme-3 .theme-copy h2,
+      .theme-3 .hero-copy h3,
+      .theme-3 .window-brand {
         font-family: "Outfit", sans-serif;
       }
 
-      .theme-bright .mock-links span {
-        background: rgba(255, 255, 255, 0.84);
-        color: #8d3d19;
+      .theme-3 .theme-tag,
+      .theme-3 .hero-pill {
+        background: rgba(238, 102, 42, 0.14);
+        color: #ba4213;
       }
 
-      .theme-bright .mock-button.main {
-        background: linear-gradient(135deg, #ff7b38, #df4b21);
+      .theme-3 .window-links span,
+      .theme-3 .chip,
+      .theme-3 .product-box,
+      .theme-3 .hero-button.alt,
+      .theme-3 .visual-card {
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(84, 35, 16, 0.08);
+      }
+
+      .theme-3 .hero-button.main {
+        background: linear-gradient(135deg, #ff7a34, #d94a1d);
         color: #fff;
       }
 
-      .theme-bright .mock-button.alt,
-      .theme-bright .mock-pill,
-      .theme-bright .mock-product {
-        background: rgba(255, 255, 255, 0.76);
-        border: 1px solid rgba(141, 61, 25, 0.08);
+      .theme-3 .product-box span,
+      .theme-3 .window-bottom .mini-label {
+        color: #d44a1d;
       }
 
-      .theme-bright .mock-pill {
-        color: #bf4f1b;
+      .theme-3 .visual-circle {
+        background: radial-gradient(circle, rgba(255, 121, 52, 0.2), transparent 68%);
       }
 
-      .theme-bright .mock-product span {
-        color: #d5481e;
+      .theme-3 .visual-strip {
+        background: rgba(212, 74, 29, 0.12);
       }
 
-      .theme-polished .mock-window {
+      .theme-4 .screen-window {
         background:
-          radial-gradient(circle at top left, rgba(220, 105, 141, 0.12), transparent 24%),
-          linear-gradient(180deg, #fbfffe 0%, #ebf6f2 100%);
-        color: #1f2940;
+          radial-gradient(circle at top left, rgba(195, 87, 125, 0.12), transparent 22%),
+          linear-gradient(180deg, #fbfffe 0%, #e7f4f0 100%);
+        color: #1d2940;
       }
 
-      .theme-polished .mock-brand,
-      .theme-polished .mock-hero h3 {
-        font-family: "Plus Jakarta Sans", sans-serif;
+      .theme-4 .theme-copy h2,
+      .theme-4 .hero-copy h3,
+      .theme-4 .window-brand {
+        font-family: "Fraunces", serif;
       }
 
-      .theme-polished .mock-links span {
-        background: rgba(255, 255, 255, 0.84);
-        color: #5d6ca3;
+      .theme-4 .theme-tag,
+      .theme-4 .hero-pill {
+        background: rgba(195, 87, 125, 0.12);
+        color: #ab3f68;
       }
 
-      .theme-polished .mock-button.main {
-        background: linear-gradient(135deg, #d55b83, #b93667);
+      .theme-4 .window-links span,
+      .theme-4 .chip,
+      .theme-4 .product-box,
+      .theme-4 .hero-button.alt,
+      .theme-4 .visual-card {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(29, 41, 64, 0.08);
+      }
+
+      .theme-4 .hero-button.main {
+        background: linear-gradient(135deg, #d65b83, #b93866);
         color: #fff;
       }
 
-      .theme-polished .mock-button.alt,
-      .theme-polished .mock-pill,
-      .theme-polished .mock-product {
-        background: rgba(255, 255, 255, 0.76);
-        border: 1px solid rgba(31, 41, 64, 0.08);
+      .theme-4 .product-box span,
+      .theme-4 .window-bottom .mini-label {
+        color: #c75177;
       }
 
-      .theme-polished .mock-pill {
-        color: #ba496f;
+      .theme-4 .visual-circle {
+        background: radial-gradient(circle, rgba(198, 88, 126, 0.18), transparent 68%);
       }
 
-      .theme-polished .mock-product span {
-        color: #cd587f;
+      .theme-4 .visual-strip {
+        background: rgba(199, 81, 119, 0.1);
       }
 
-      @media (max-width: 980px) {
-        .preview-grid {
+      @media (max-width: 1120px) {
+        .theme-top,
+        .window-hero {
           grid-template-columns: 1fr;
         }
       }
 
+      @media (max-width: 840px) {
+        .window-products {
+          grid-template-columns: 1fr;
+        }
+
+        .window-bottom,
+        .window-nav {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
       @media (max-width: 640px) {
-        .shell {
+        .page {
           width: min(calc(100vw - 16px), 100%);
           padding-top: 16px;
         }
 
         .intro,
-        .preview-head,
-        .mockup {
+        .theme-top,
+        .screen,
+        .pick-box {
           padding-left: 16px;
           padding-right: 16px;
         }
 
-        .mock-nav,
-        .mock-hero,
-        .mock-products,
-        .mock-footer {
+        .window-nav,
+        .window-hero,
+        .window-products,
+        .window-bottom {
           padding-left: 16px;
           padding-right: 16px;
-        }
-
-        .mock-products {
-          grid-template-columns: 1fr;
-        }
-
-        .mock-footer,
-        .mock-nav {
-          flex-direction: column;
-          align-items: flex-start;
         }
       }
     </style>
   </head>
   <body>
-    <div class="shell">
+    <div class="page">
       <section class="intro">
-        <span>Design Preview</span>
-        <h1>All 4 website styles in one place.</h1>
+        <span class="intro-tag">Better Preview</span>
+        <h1>Ab zyada strong website directions dekh lo.</h1>
         <p>
-          Neeche 4 alag directions dikh rahi hain. Aap bas bolo `1`, `2`, `3`,
-          ya `4`, aur main poori website us style me convert kar dunga.
+          Pehle wale concepts weak lag rahe the, isliye maine inko proper
+          storefront style me remake kiya hai. Har option me hero, menu, tone,
+          aur overall feel alag hai.
         </p>
       </section>
 
-      <section class="preview-grid">
-        <article class="preview-card theme-festive">
-          <div class="preview-head">
-            <div>
-              <h2>1. Premium Festive</h2>
-              <p>Cream, gold, rich mithai look, elegant and premium.</p>
+      <section class="theme-grid">
+        <article class="theme-card theme-1">
+          <div class="theme-top">
+            <div class="theme-copy">
+              <span class="theme-tag">Option 1</span>
+              <h2>Royal Mithai House</h2>
+              <p>
+                Cream, saffron, and rich serif typography ke saath ek luxury
+                mithai-store look. Ye festive gifting aur premium sweets brand
+                ke liye best feel deta hai.
+              </p>
+              <strong>Best for: classy, expensive, festive feeling</strong>
             </div>
-            <div class="preview-badge">1</div>
+            <div class="theme-points">
+              <div class="theme-point">
+                <strong>Hero feel</strong>
+                <span>Editorial headline, premium spacing, luxury product focus</span>
+              </div>
+              <div class="theme-point">
+                <strong>Product cards</strong>
+                <span>Soft cream cards with richer price emphasis</span>
+              </div>
+              <div class="theme-point">
+                <strong>Brand vibe</strong>
+                <span>Traditional, elegant, and gifting-friendly</span>
+              </div>
+            </div>
           </div>
-          <div class="mockup">
-            <div class="mock-window">
-              <div class="mock-nav">
-                <div class="mock-brand">Antarmana</div>
-                <div class="mock-links">
+          <div class="screen">
+            <div class="screen-window">
+              <div class="window-nav">
+                <div class="window-brand">Antarmana</div>
+                <div class="window-links">
                   <span>Home</span>
                   <span>Menu</span>
-                  <span>Payment</span>
-                </div>
-              </div>
-              <div class="mock-hero">
-                <div class="mock-pill">Festive gifting</div>
-                <h3>Traditional mithai with a rich celebration feel.</h3>
-                <p>
-                  Best if you want the website to look expensive, elegant, and
-                  perfect for sweets gifting.
-                </p>
-                <div class="mock-actions">
-                  <div class="mock-button main">View Menu</div>
-                  <div class="mock-button alt">Start Order</div>
-                </div>
-                <div class="mock-pills">
-                  <div class="mock-pill">Besan Chakki</div>
-                  <div class="mock-pill">Sawali</div>
-                  <div class="mock-pill">Bhujia</div>
-                </div>
-              </div>
-              <div class="mock-products">
-                <div class="mock-product">
-                  <strong>Besan Chakki</strong>
-                  <span>Rs 650 / kg</span>
-                  <p>Dense festive sweet for gifting trays and family orders.</p>
-                </div>
-                <div class="mock-product">
-                  <strong>Sawali</strong>
-                  <span>Rs 360 / kg</span>
-                  <p>Soft traditional flavor with a rich celebratory feel.</p>
-                </div>
-              </div>
-              <div class="mock-footer">
-                <p>Elegant storefront, stronger premium vibe.</p>
-                <div class="mini-tag">Best for luxury look</div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="preview-card theme-clean">
-          <div class="preview-head">
-            <div>
-              <h2>2. Clean Modern Shop</h2>
-              <p>Simple, neat, clear cards, best for trust and shopping.</p>
-            </div>
-            <div class="preview-badge">2</div>
-          </div>
-          <div class="mockup">
-            <div class="mock-window">
-              <div class="mock-nav">
-                <div class="mock-brand">Antarmana Sweets</div>
-                <div class="mock-links">
-                  <span>Home</span>
-                  <span>Price List</span>
                   <span>Contact</span>
                 </div>
               </div>
-              <div class="mock-hero">
-                <div class="mock-pill">Fresh daily</div>
-                <h3>Order traditional sweets without a confusing layout.</h3>
-                <p>
-                  Best if you want the site to look professional, clean, and
-                  easy to use for every customer.
-                </p>
-                <div class="mock-actions">
-                  <div class="mock-button main">Shop Now</div>
-                  <div class="mock-button alt">See Payment</div>
+              <div class="window-hero">
+                <div class="hero-copy">
+                  <div class="hero-pill">Luxury festive store</div>
+                  <h3>Traditional mithai that feels made for gifting tables.</h3>
+                  <p>
+                    A premium front page with stronger product storytelling and
+                    a richer Indian sweets mood.
+                  </p>
+                  <div class="hero-actions">
+                    <div class="hero-button main">Explore Menu</div>
+                    <div class="hero-button alt">Start Order</div>
+                  </div>
+                  <div class="hero-chips">
+                    <div class="chip">Besan Chakki</div>
+                    <div class="chip">Sawali</div>
+                    <div class="chip">Fresh daily</div>
+                  </div>
                 </div>
-                <div class="mock-pills">
-                  <div class="mock-pill">Simple cart</div>
-                  <div class="mock-pill">WhatsApp flow</div>
-                  <div class="mock-pill">COD + QR</div>
+                <div class="hero-visual">
+                  <div class="visual-circle"></div>
+                  <div class="visual-card">
+                    <strong>Festive Box Highlight</strong>
+                    <p>Hero area focuses on one star sweet and makes the site feel expensive.</p>
+                  </div>
+                  <div class="visual-strip"></div>
                 </div>
               </div>
-              <div class="mock-products">
-                <div class="mock-product">
+              <div class="window-products">
+                <div class="product-box">
+                  <strong>Besan Chakki</strong>
+                  <span>Rs 650 / kg</span>
+                  <p>Dense and rich product highlight with gifting-first feel.</p>
+                </div>
+                <div class="product-box">
+                  <strong>Sawali</strong>
+                  <span>Rs 360 / kg</span>
+                  <p>Softer festive sweet card with elegant typography.</p>
+                </div>
+                <div class="product-box">
                   <strong>Bhujia</strong>
                   <span>Rs 400 / kg</span>
-                  <p>Crisp snack card with clean spacing and easy add buttons.</p>
-                </div>
-                <div class="mock-product">
-                  <strong>Petha</strong>
-                  <span>Rs 380 / kg</span>
-                  <p>Minimal product box that feels modern and trustworthy.</p>
+                  <p>Snack card still feels premium, not plain.</p>
                 </div>
               </div>
-              <div class="mock-footer">
-                <p>Best mix of simple, professional, and mobile-friendly.</p>
-                <div class="mini-tag">Recommended</div>
+              <div class="window-bottom">
+                <p>Overall result: premium mithai shop with stronger brand value.</p>
+                <div class="mini-label">Luxury look</div>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="preview-card theme-bright">
-          <div class="preview-head">
-            <div>
-              <h2>3. Bright Sweets Shop</h2>
-              <p>Colorful, lively, bolder, more eye-catching sweets vibe.</p>
+        <article class="theme-card theme-2">
+          <div class="theme-top">
+            <div class="theme-copy">
+              <span class="theme-tag">Option 2</span>
+              <h2>Modern Order Counter</h2>
+              <p>
+                Ye sabse clean aur professional option hai. Isme trust, clear
+                cart flow, neat cards, aur simple buying experience sabse strong
+                hota hai.
+              </p>
+              <strong>Best for: clean, modern, trustworthy shopping</strong>
             </div>
-            <div class="preview-badge">3</div>
+            <div class="theme-points">
+              <div class="theme-point">
+                <strong>Hero feel</strong>
+                <span>Less decoration, more clarity, strong call-to-action</span>
+              </div>
+              <div class="theme-point">
+                <strong>Product cards</strong>
+                <span>Minimal product tiles that feel organized and premium</span>
+              </div>
+              <div class="theme-point">
+                <strong>Brand vibe</strong>
+                <span>Professional, simple, easy for every customer</span>
+              </div>
+            </div>
           </div>
-          <div class="mockup">
-            <div class="mock-window">
-              <div class="mock-nav">
-                <div class="mock-brand">Antarmana Snacks</div>
-                <div class="mock-links">
+          <div class="screen">
+            <div class="screen-window">
+              <div class="window-nav">
+                <div class="window-brand">Antarmana Sweets &amp; Snacks</div>
+                <div class="window-links">
+                  <span>Home</span>
+                  <span>Price List</span>
+                  <span>Payment</span>
+                </div>
+              </div>
+              <div class="window-hero">
+                <div class="hero-copy">
+                  <div class="hero-pill">Clear and modern</div>
+                  <h3>Order sweets online without a cluttered layout.</h3>
+                  <p>
+                    Strongest option for trust, readability, and checkout
+                    clarity on mobile and desktop.
+                  </p>
+                  <div class="hero-actions">
+                    <div class="hero-button main">Shop Now</div>
+                    <div class="hero-button alt">See Payment</div>
+                  </div>
+                  <div class="hero-chips">
+                    <div class="chip">COD + QR</div>
+                    <div class="chip">WhatsApp order</div>
+                    <div class="chip">Easy cart</div>
+                  </div>
+                </div>
+                <div class="hero-visual">
+                  <div class="visual-circle"></div>
+                  <div class="visual-card">
+                    <strong>Product-first layout</strong>
+                    <p>This design feels cleaner, safer, and more professional for visitors.</p>
+                  </div>
+                  <div class="visual-strip"></div>
+                </div>
+              </div>
+              <div class="window-products">
+                <div class="product-box">
+                  <strong>Bhujia</strong>
+                  <span>Rs 400 / kg</span>
+                  <p>Simple product card with a strong add-to-cart feel.</p>
+                </div>
+                <div class="product-box">
+                  <strong>Petha</strong>
+                  <span>Rs 380 / kg</span>
+                  <p>Clean spacing and easy pricing read.</p>
+                </div>
+                <div class="product-box">
+                  <strong>Khastha Kachori</strong>
+                  <span>Rs 35 / pc</span>
+                  <p>Snack card still feels very organized and modern.</p>
+                </div>
+              </div>
+              <div class="window-bottom">
+                <p>Overall result: easy-to-trust storefront with the cleanest shopping flow.</p>
+                <div class="mini-label">Recommended</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="theme-card theme-3">
+          <div class="theme-top">
+            <div class="theme-copy">
+              <span class="theme-tag">Option 3</span>
+              <h2>Indian Sweet Bazaar</h2>
+              <p>
+                Stronger color, bolder typography, aur zyada attention-grabbing
+                layout. Agar aapko lively, festive, colorful Indian sweets shop
+                look chahiye to ye best rahega.
+              </p>
+              <strong>Best for: bold, colorful, eye-catching storefront</strong>
+            </div>
+            <div class="theme-points">
+              <div class="theme-point">
+                <strong>Hero feel</strong>
+                <span>Loud but polished, stronger first impression</span>
+              </div>
+              <div class="theme-point">
+                <strong>Product cards</strong>
+                <span>More playful cards with bold pricing emphasis</span>
+              </div>
+              <div class="theme-point">
+                <strong>Brand vibe</strong>
+                <span>Indian festive, energetic, more memorable</span>
+              </div>
+            </div>
+          </div>
+          <div class="screen">
+            <div class="screen-window">
+              <div class="window-nav">
+                <div class="window-brand">Antarmana Bazaar</div>
+                <div class="window-links">
                   <span>Home</span>
                   <span>Products</span>
                   <span>Order</span>
                 </div>
               </div>
-              <div class="mock-hero">
-                <div class="mock-pill">Bold and lively</div>
-                <h3>Make the website feel energetic, sweet, and memorable.</h3>
-                <p>
-                  Best if you want brighter colors, stronger attraction, and a
-                  more playful Indian sweets shop feel.
-                </p>
-                <div class="mock-actions">
-                  <div class="mock-button main">Explore Items</div>
-                  <div class="mock-button alt">Start Cart</div>
+              <div class="window-hero">
+                <div class="hero-copy">
+                  <div class="hero-pill">Bright and festive</div>
+                  <h3>Make the website feel full of mithai energy and color.</h3>
+                  <p>
+                    Best if you want the site to stand out quickly and feel more
+                    lively than a normal online menu.
+                  </p>
+                  <div class="hero-actions">
+                    <div class="hero-button main">Explore Items</div>
+                    <div class="hero-button alt">Open Cart</div>
+                  </div>
+                  <div class="hero-chips">
+                    <div class="chip">Festive color</div>
+                    <div class="chip">Strong branding</div>
+                    <div class="chip">More attraction</div>
+                  </div>
                 </div>
-                <div class="mock-pills">
-                  <div class="mock-pill">Festive</div>
-                  <div class="mock-pill">Colorful</div>
-                  <div class="mock-pill">Attention-grabbing</div>
+                <div class="hero-visual">
+                  <div class="visual-circle"></div>
+                  <div class="visual-card">
+                    <strong>High-energy storefront</strong>
+                    <p>This version feels most alive and most noticeable on first look.</p>
+                  </div>
+                  <div class="visual-strip"></div>
                 </div>
               </div>
-              <div class="mock-products">
-                <div class="mock-product">
-                  <strong>Khastha Kachori</strong>
-                  <span>Rs 35 / pc</span>
-                  <p>Strong colors and fun cards for snack-first browsing.</p>
+              <div class="window-products">
+                <div class="product-box">
+                  <strong>Sawali</strong>
+                  <span>Rs 360 / kg</span>
+                  <p>Product blocks become brighter and more expressive.</p>
                 </div>
-                <div class="mock-product">
+                <div class="product-box">
                   <strong>Shakkarpara</strong>
                   <span>Rs 360 / kg</span>
-                  <p>Feels lively and attractive, especially on mobile.</p>
+                  <p>Very visible pricing and bolder card style.</p>
+                </div>
+                <div class="product-box">
+                  <strong>Bhujia</strong>
+                  <span>Rs 400 / kg</span>
+                  <p>Snack listing feels more fun and scroll-stopping.</p>
                 </div>
               </div>
-              <div class="mock-footer">
-                <p>Most colorful and noticeable option.</p>
-                <div class="mini-tag">Best for attention</div>
+              <div class="window-bottom">
+                <p>Overall result: more colorful, festive, and attention-grabbing website.</p>
+                <div class="mini-label">Bold choice</div>
               </div>
             </div>
           </div>
         </article>
 
-        <article class="preview-card theme-polished">
-          <div class="preview-head">
-            <div>
-              <h2>4. Old Design But Polished</h2>
-              <p>Current vibe, but cleaner spacing, better colors, better type.</p>
+        <article class="theme-card theme-4">
+          <div class="theme-top">
+            <div class="theme-copy">
+              <span class="theme-tag">Option 4</span>
+              <h2>Refined Soft Boutique</h2>
+              <p>
+                Agar aapko softer, cleaner, aur feminine-premium look chahiye
+                without going too loud, ye option zyada balanced aur polished
+                lagega.
+              </p>
+              <strong>Best for: soft premium, balanced, polished storefront</strong>
             </div>
-            <div class="preview-badge">4</div>
+            <div class="theme-points">
+              <div class="theme-point">
+                <strong>Hero feel</strong>
+                <span>Elegant but friendly, not too heavy, not too plain</span>
+              </div>
+              <div class="theme-point">
+                <strong>Product cards</strong>
+                <span>Pastel-tinted cards with nicer spacing and clarity</span>
+              </div>
+              <div class="theme-point">
+                <strong>Brand vibe</strong>
+                <span>Refined, soft, and modern without losing warmth</span>
+              </div>
+            </div>
           </div>
-          <div class="mockup">
-            <div class="mock-window">
-              <div class="mock-nav">
-                <div class="mock-brand">Antarmana</div>
-                <div class="mock-links">
+          <div class="screen">
+            <div class="screen-window">
+              <div class="window-nav">
+                <div class="window-brand">Antarmana</div>
+                <div class="window-links">
                   <span>Home</span>
-                  <span>Price List</span>
-                  <span>Payment</span>
+                  <span>Menu</span>
+                  <span>Contact</span>
                 </div>
               </div>
-              <div class="mock-hero">
-                <div class="mock-pill">Refined version</div>
-                <h3>Keep the old structure, just make it look much better.</h3>
-                <p>
-                  Best if you do not want a full visual change and only want a
-                  cleaner, more professional version of the existing site.
-                </p>
-                <div class="mock-actions">
-                  <div class="mock-button main">See Products</div>
-                  <div class="mock-button alt">Go to Cart</div>
+              <div class="window-hero">
+                <div class="hero-copy">
+                  <div class="hero-pill">Soft and polished</div>
+                  <h3>Keep the site graceful, fresh, and easier on the eyes.</h3>
+                  <p>
+                    Best if you want a refined storefront that feels modern and
+                    welcoming without becoming too loud.
+                  </p>
+                  <div class="hero-actions">
+                    <div class="hero-button main">See Products</div>
+                    <div class="hero-button alt">Start Order</div>
+                  </div>
+                  <div class="hero-chips">
+                    <div class="chip">Balanced</div>
+                    <div class="chip">Polished</div>
+                    <div class="chip">Warm tone</div>
+                  </div>
                 </div>
-                <div class="mock-pills">
-                  <div class="mock-pill">Familiar</div>
-                  <div class="mock-pill">Safer choice</div>
-                  <div class="mock-pill">Less drastic</div>
+                <div class="hero-visual">
+                  <div class="visual-circle"></div>
+                  <div class="visual-card">
+                    <strong>Warm boutique style</strong>
+                    <p>This one feels softer and more graceful than the others.</p>
+                  </div>
+                  <div class="visual-strip"></div>
                 </div>
               </div>
-              <div class="mock-products">
-                <div class="mock-product">
+              <div class="window-products">
+                <div class="product-box">
                   <strong>Besan Chakki</strong>
                   <span>Rs 650 / kg</span>
-                  <p>Same basic flow, only polished with nicer spacing and UI.</p>
+                  <p>Premium card without heavy festive styling.</p>
                 </div>
-                <div class="mock-product">
+                <div class="product-box">
+                  <strong>Petha</strong>
+                  <span>Rs 380 / kg</span>
+                  <p>Soft product presentation with clean readability.</p>
+                </div>
+                <div class="product-box">
                   <strong>Bhujia</strong>
                   <span>Rs 400 / kg</span>
-                  <p>Feels more refined without fully changing the website mood.</p>
+                  <p>Balanced card style for snacks and sweets together.</p>
                 </div>
               </div>
-              <div class="mock-footer">
-                <p>Closest to your current layout, but more polished.</p>
-                <div class="mini-tag">Low-risk option</div>
+              <div class="window-bottom">
+                <p>Overall result: calmer premium storefront with softer personality.</p>
+                <div class="mini-label">Balanced choice</div>
               </div>
             </div>
           </div>
         </article>
       </section>
 
-      <section class="pick-note">
-        <strong>Reply like this:</strong> `1`, `2`, `3`, or `4`<br />
-        Agar chaho, `2 + colors from 1` jaisa mix bhi bol sakte ho. Main usi
-        hisaab se final website bana dunga.
+      <section class="pick-box">
+        <strong>Ab bas reply karo:</strong>
+        `1`, `2`, `3`, ya `4`<br />
+        Agar mix chahiye to `2 layout + 1 colors` ya `4 style + 3 boldness`
+        bhi bol sakte ho. Main usi hisaab se final homepage bana dunga.
       </section>
     </div>
   </body>
