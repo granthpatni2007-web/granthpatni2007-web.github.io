@@ -90,7 +90,10 @@ if (closeCartButton) {
 }
 
 if (featuredPriceLabel) {
-  featuredPriceLabel.textContent = `${currency.format(600)} / kg`;
+  const featuredProduct = findProduct("besan-chakki");
+  if (featuredProduct) {
+    featuredPriceLabel.textContent = formatProductPrice(featuredProduct);
+  }
 }
 
 renderProducts();
