@@ -1,6 +1,7 @@
 const ordersStorageKey = window.antarmanaOrderStore?.storageKey || "Antarmana-orders";
 const ownerAccessSessionKey = "Antarmana-owner-access";
 const ownerDatabaseSessionKey = "Antarmana-owner-db-token";
+const ownerPasscodes = new Set(["owner123", "antarmana123"]);
 
 const currency = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -29,8 +30,7 @@ const sampleOrders = createSampleOrders();
 const ownerLockScreen = document.getElementById("ownerLockScreen");
 const ownerDashboardShell = document.getElementById("ownerDashboardShell");
 const ownerUnlockForm = document.getElementById("ownerUnlockForm");
-const ownerEmailInput = document.getElementById("ownerEmail");
-const ownerPasswordInput = document.getElementById("ownerPassword");
+const ownerPasscodeInput = document.getElementById("ownerPasscode");
 const ownerUnlockError = document.getElementById("ownerUnlockError");
 const lockDashboardButton = document.getElementById("lockDashboardButton");
 const heroOrderCount = document.getElementById("heroOrderCount");
@@ -74,33 +74,20 @@ function trackAnalyticsEvent(eventName, details = {}) {
   window.siteAnalytics?.trackEvent(eventName, details);
 }
 
-async function init() {
+function init() {
   ownerUnlockForm?.addEventListener("submit", handleOwnerUnlock);
-  ownerEmailInput?.addEventListener("input", hideOwnerUnlockError);
-  ownerPasswordInput?.addEventListener("input", hideOwnerUnlockError);
+  ownerPasscodeInput?.addEventListener("input", hideOwnerUnlockError);
   lockDashboardButton?.addEventListener("click", lockOwnerDashboard);
   document.addEventListener("pointerdown", primeNotificationAudio, { once: true });
   document.addEventListener("keydown", primeNotificationAudio, { once: true });
   updateNotificationBell();
 
   if (window.sessionStorage.getItem(ownerAccessSessionKey) === "unlocked") {
-    if (await canRestoreOwnerDashboardSession()) {
-      unlockOwnerDashboard(false);
-      return;
-    }
-
-    window.sessionStorage.removeItem(ownerAccessSessionKey);
+    unlockOwnerDashboard(false);
+    return;
   }
 
   showOwnerLockScreen();
-}
-
-function getOrderStoreMode() {
-  return window.antarmanaOrderStore?.getMode?.() || "local";
-}
-
-function isFirestoreOrderMode() {
-  return getOrderStoreMode() === "firestore";
 }
 
 async function initializeDashboard() {
@@ -151,44 +138,6 @@ function getOrderPollIntervalMs() {
   return window.antarmanaOrderStore?.getPollIntervalMs?.() || 15000;
 }
 
-async function getFirebaseServices() {
-  if (window.antarmanaOrderStore?.waitForFirebaseServices) {
-    return window.antarmanaOrderStore.waitForFirebaseServices();
-  }
-
-  return window.antarmanaFirebaseReady || window.antarmanaFirebase || null;
-}
-
-async function canRestoreOwnerDashboardSession() {
-  if (!isFirestoreOrderMode()) {
-    return true;
-  }
-
-  const services = await getFirebaseServices().catch(() => null);
-  await services?.authReady?.catch(() => null);
-  return Boolean(services?.auth?.currentUser);
-}
-
-async function signInOwner(email, password) {
-  const services = await getFirebaseServices();
-
-  if (!services?.auth || !services?.authApi?.signInWithEmailAndPassword) {
-    throw new Error("Firebase Auth is not ready.");
-  }
-
-  return services.authApi.signInWithEmailAndPassword(services.auth, email, password);
-}
-
-async function signOutOwner() {
-  const services = await getFirebaseServices().catch(() => null);
-
-  if (!services?.auth || !services?.authApi?.signOut) {
-    return;
-  }
-
-  await services.authApi.signOut(services.auth).catch(() => {});
-}
-
 function getOwnerApiToken() {
   return String(window.sessionStorage.getItem(ownerDatabaseSessionKey) || "").trim();
 }
@@ -213,12 +162,6 @@ function clearOwnerApiToken() {
 async function ensureRemoteOwnerAccess() {
   if (!isRemoteOrderMode()) {
     return true;
-  }
-
-  if (isFirestoreOrderMode()) {
-    const services = await getFirebaseServices().catch(() => null);
-    await services?.authReady?.catch(() => null);
-    return Boolean(services?.auth?.currentUser);
   }
 
   if (getOwnerApiToken()) {
@@ -515,34 +458,20 @@ function isDemoOrder(order) {
 function handleOwnerUnlock(event) {
   event.preventDefault();
 
-  const email = normalizeText(ownerEmailInput?.value || "").toLowerCase();
-  const password = ownerPasswordInput?.value || "";
-
-  if (!email || !password) {
-    showOwnerUnlockError("Email and password are required.");
+  if (!isValidOwnerPasscode(ownerPasscodeInput?.value || "")) {
+    showOwnerUnlockError();
     return;
   }
 
-  signInOwner(email, password)
-    .then(() => {
-      unlockOwnerDashboard(true);
-    })
-    .catch((error) => {
-      console.error("Owner sign-in failed", error);
-      showOwnerUnlockError("Sign-in failed. Please check your email and password.");
-    });
+  unlockOwnerDashboard(true);
 }
 
 function unlockOwnerDashboard(shouldFocusTop) {
   window.sessionStorage.setItem(ownerAccessSessionKey, "unlocked");
   hideOwnerUnlockError();
 
-  if (ownerEmailInput) {
-    ownerEmailInput.value = "";
-  }
-
-  if (ownerPasswordInput) {
-    ownerPasswordInput.value = "";
+  if (ownerPasscodeInput) {
+    ownerPasscodeInput.value = "";
   }
 
   if (ownerLockScreen) {
@@ -564,10 +493,8 @@ function unlockOwnerDashboard(shouldFocusTop) {
   }
 }
 
-async function lockOwnerDashboard() {
+function lockOwnerDashboard() {
   stopOrderPolling();
-  await signOutOwner();
-  clearOwnerApiToken();
   window.sessionStorage.removeItem(ownerAccessSessionKey);
 
   if (ownerDashboardShell) {
@@ -586,24 +513,19 @@ function showOwnerLockScreen() {
     ownerDashboardShell.hidden = true;
   }
 
-  if (ownerEmailInput) {
-    ownerEmailInput.value = "";
-    ownerEmailInput.focus();
-  }
-
-  if (ownerPasswordInput) {
-    ownerPasswordInput.value = "";
+  if (ownerPasscodeInput) {
+    ownerPasscodeInput.value = "";
+    ownerPasscodeInput.focus();
   }
 
   hideOwnerUnlockError();
 }
 
-function showOwnerUnlockError(message) {
+function showOwnerUnlockError() {
   if (!ownerUnlockError) {
     return;
   }
 
-  ownerUnlockError.textContent = message || "Sign-in failed. Please check your email and password.";
   ownerUnlockError.hidden = false;
 }
 
@@ -613,6 +535,11 @@ function hideOwnerUnlockError() {
   }
 
   ownerUnlockError.hidden = true;
+}
+
+function isValidOwnerPasscode(passcode) {
+  const normalizedPasscode = normalizeText(passcode).replace(/\s+/g, "");
+  return ownerPasscodes.has(normalizedPasscode);
 }
 
 function renderDashboard() {

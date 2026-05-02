@@ -1,9 +1,6 @@
 window.ANTARMANA_SITE_CONFIG = {
-  // Available modes: "firestore", "remote-api", "local"
-  orderDataMode: "firestore",
-  // Firestore collection for website orders.
-  firestoreCollectionName: "orders",
-  // Keep blank unless you want to use the separate backend API instead of Firestore.
+  // Leave blank to keep orders in browser storage.
+  // Add your backend URL later, for example: "https://your-backend.onrender.com/api"
   orderApiBaseUrl: "",
   orderPollIntervalMs: 15000
 };
