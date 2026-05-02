@@ -1,4 +1,4 @@
-const products = [
+﻿const products = [
   {
     id: "bhujia",
     name: "Bhujia",
@@ -90,10 +90,7 @@ if (closeCartButton) {
 }
 
 if (featuredPriceLabel) {
-  const featuredProduct = findProduct("besan-chakki");
-  if (featuredProduct) {
-    featuredPriceLabel.textContent = formatProductPrice(featuredProduct);
-  }
+  featuredPriceLabel.textContent = `${currency.format(600)} / kg`;
 }
 
 renderProducts();
