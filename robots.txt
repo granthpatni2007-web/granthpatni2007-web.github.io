@@ -1,6 +1,2 @@
 User-agent: *
 Allow: /
-Disallow: /owner.html
-
-Sitemap: https://granthpatni2007-web.github.io/sitemap.xml
-Sitemap: https://granthpatni2007-web.github.io/sitemap.txt
