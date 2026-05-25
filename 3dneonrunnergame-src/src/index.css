@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: #03030a;
+}
+
+.motion-blur {
+  position: relative;
+}
+
+.motion-blur::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(26, 238, 255, 0.04), transparent 30%, rgba(180, 73, 255, 0.06));
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: pulseOverlay 1.6s ease-in-out infinite;
+}
+
+@keyframes pulseOverlay {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

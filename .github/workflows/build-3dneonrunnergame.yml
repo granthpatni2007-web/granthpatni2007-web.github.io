@@ -1,0 +1,60 @@
+name: Build 3D Neon Runner
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/build-3dneonrunnergame.yml"
+      - "3dneonrunnergame-src/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: 3dneonrunnergame-src/package-lock.json
+
+      - name: Install dependencies
+        working-directory: 3dneonrunnergame-src
+        run: npm ci
+
+      - name: Build site
+        working-directory: 3dneonrunnergame-src
+        env:
+          VITE_BASE_PATH: /3dneonrunnergame/
+        run: npm run build
+
+      - name: Sync built site
+        shell: bash
+        run: |
+          rm -rf 3dneonrunnergame
+          mkdir -p 3dneonrunnergame
+          cp -R 3dneonrunnergame-src/dist/. 3dneonrunnergame/
+
+      - name: Commit generated site
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- 3dneonrunnergame)" ]; then
+            echo "No site changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 3dneonrunnergame
+          git commit -m "Build 3D Neon Runner site"
+          git push
