@@ -28,7 +28,6 @@ const STORAGE = {
   highScore: "neonRunner.highScore",
   runHistory: "neonRunner.runHistory",
   settings: "neonRunner.settings",
-  firebase: "neonRunner.firebaseConfig",
 } as const;
 
 function readJson<T>(key: string, fallback: T): T {
@@ -874,13 +873,6 @@ export default function App() {
       username: "Guest",
     }),
   );
-  const [firebaseConfig, setFirebaseConfig] = useState(() =>
-    readJson<{ apiKey: string; projectId: string; appId: string }>(STORAGE.firebase, {
-      apiKey: "",
-      projectId: "",
-      appId: "",
-    }),
-  );
   const [loginInput, setLoginInput] = useState(settings.username || "");
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
 
@@ -898,10 +890,7 @@ export default function App() {
   }, [runHistory]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE.firebase, JSON.stringify(firebaseConfig));
-  }, [firebaseConfig]);
-
-  useEffect(() => {
+    localStorage.removeItem("neonRunner.firebaseConfig");
     if (import.meta.env.PROD && "serviceWorker" in navigator) {
       void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, {
         scope: import.meta.env.BASE_URL,
@@ -1070,7 +1059,7 @@ export default function App() {
           <section className="space-y-6">
             <div>
               <h2 className="text-3xl font-semibold text-cyan-100">Settings</h2>
-              <p className="mt-2 text-sm text-cyan-200/80">Audio, controls, identity, and integration options.</p>
+              <p className="mt-2 text-sm text-cyan-200/80">Audio, controls, and player identity options.</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -1137,33 +1126,6 @@ export default function App() {
                   </label>
                 </div>
               </div>
-
-              <div className="rounded-2xl border border-cyan-500/25 bg-black/30 p-5 md:col-span-2">
-                <h3 className="text-lg font-medium">Firebase Integration Support</h3>
-                <p className="mt-1 text-sm text-cyan-200/75">
-                  Save optional Firebase identifiers to make the project backend-ready for auth and cloud leaderboard.
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <input
-                    className="rounded-lg border border-white/15 bg-black/50 px-3 py-2 text-sm"
-                    placeholder="apiKey"
-                    value={firebaseConfig.apiKey}
-                    onChange={(event) => setFirebaseConfig((prev) => ({ ...prev, apiKey: event.target.value }))}
-                  />
-                  <input
-                    className="rounded-lg border border-white/15 bg-black/50 px-3 py-2 text-sm"
-                    placeholder="projectId"
-                    value={firebaseConfig.projectId}
-                    onChange={(event) => setFirebaseConfig((prev) => ({ ...prev, projectId: event.target.value }))}
-                  />
-                  <input
-                    className="rounded-lg border border-white/15 bg-black/50 px-3 py-2 text-sm"
-                    placeholder="appId"
-                    value={firebaseConfig.appId}
-                    onChange={(event) => setFirebaseConfig((prev) => ({ ...prev, appId: event.target.value }))}
-                  />
-                </div>
-              </div>
             </div>
           </section>
         )}
@@ -1177,8 +1139,8 @@ export default function App() {
               and service-worker caching structure.
             </p>
             <p className="max-w-3xl text-cyan-100/80">
-              Multiplayer-ready architecture is provided by persistent run data and extensible Firebase configuration fields. Replace local storage
-              adapters with realtime sync endpoints to launch cloud multiplayer features.
+              Run history and player settings are stored locally in the browser, which keeps the arcade experience fast, simple, and fully
+              self-contained.
             </p>
           </section>
         )}
