@@ -93,6 +93,7 @@ function RunnerGame({
 }) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<"loading" | "start" | "playing" | "paused" | "gameover">("loading");
+  const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(8);
   const [score, setScore] = useState(0);
   const [coins, setCoins] = useState(0);
@@ -129,6 +130,10 @@ function RunnerGame({
   useEffect(() => {
     onRunCompleteRef.current = onRunComplete;
   }, [onRunComplete]);
+
+  useEffect(() => {
+    setIsMobileSettingsOpen(false);
+  }, [isFullscreen]);
 
   const ensureAudio = () => {
     if (!audioRef.current.ctx) {
@@ -866,10 +871,41 @@ function RunnerGame({
         <button
           type="button"
           onClick={onToggleFullscreen}
-          className="rounded-full border border-cyan-300/70 bg-black/55 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-cyan-100 transition hover:bg-black/75"
+          className="hidden rounded-full border border-cyan-300/70 bg-black/55 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-cyan-100 transition hover:bg-black/75 sm:inline-flex"
         >
           {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
         </button>
+        <button
+          type="button"
+          onClick={() => setIsMobileSettingsOpen((prev) => !prev)}
+          className="rounded-full border border-cyan-300/70 bg-black/55 px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-cyan-100 transition hover:bg-black/75 sm:hidden"
+        >
+          Settings
+        </button>
+        {isMobileSettingsOpen && (
+          <div className="absolute right-0 top-full mt-2 w-44 rounded-2xl border border-cyan-400/30 bg-black/90 p-2 shadow-[0_0_30px_rgba(34,211,238,0.16)] sm:hidden">
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileSettingsOpen(false);
+                onToggleFullscreen();
+              }}
+              className="w-full rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-3 py-2 text-left text-[11px] uppercase tracking-[0.18em] text-cyan-100"
+            >
+              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileSettingsOpen(false);
+                runApi((api) => api.pauseOrResume());
+              }}
+              className="mt-2 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-400/10 px-3 py-2 text-left text-[11px] uppercase tracking-[0.18em] text-fuchsia-100"
+            >
+              Pause / Resume
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="pointer-events-none absolute left-0 right-0 top-12 mx-auto flex w-fit items-center gap-3 text-xs uppercase tracking-widest text-fuchsia-200/90">
@@ -997,6 +1033,8 @@ export default function App() {
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
   const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false);
+  const [isHomeMobileSettingsOpen, setIsHomeMobileSettingsOpen] = useState(false);
+  const [isPlayMobileSettingsOpen, setIsPlayMobileSettingsOpen] = useState(false);
   const [pendingFullscreenEntry, setPendingFullscreenEntry] = useState(false);
   const gameShellRef = useRef<HTMLDivElement | null>(null);
 
@@ -1073,6 +1111,11 @@ export default function App() {
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isFallbackFullscreen]);
+
+  useEffect(() => {
+    setIsHomeMobileSettingsOpen(false);
+    setIsPlayMobileSettingsOpen(false);
+  }, [page, isGameFullscreen]);
 
   useEffect(() => {
     if (page !== "play" || !pendingFullscreenEntry) {
@@ -1197,10 +1240,44 @@ export default function App() {
                     setPage("play");
                     setPendingFullscreenEntry(true);
                   }}
-                  className="rounded-full border border-fuchsia-300/80 bg-fuchsia-400/15 px-6 py-3 text-sm uppercase tracking-[0.2em] transition hover:bg-fuchsia-300/35"
+                  className="hidden rounded-full border border-fuchsia-300/80 bg-fuchsia-400/15 px-6 py-3 text-sm uppercase tracking-[0.2em] transition hover:bg-fuchsia-300/35 sm:inline-flex"
                 >
                   {isGameFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 </button>
+                <div className="relative sm:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setIsHomeMobileSettingsOpen((prev) => !prev)}
+                    className="rounded-full border border-fuchsia-300/80 bg-fuchsia-400/15 px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-fuchsia-100"
+                  >
+                    Settings
+                  </button>
+                  {isHomeMobileSettingsOpen && (
+                    <div className="absolute left-0 top-full z-20 mt-2 w-44 rounded-2xl border border-fuchsia-300/30 bg-black/90 p-2 shadow-[0_0_30px_rgba(217,70,239,0.14)]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsHomeMobileSettingsOpen(false);
+                          setPage("play");
+                          setPendingFullscreenEntry(true);
+                        }}
+                        className="w-full rounded-xl border border-fuchsia-300/40 bg-fuchsia-400/10 px-3 py-2 text-left text-[11px] uppercase tracking-[0.18em] text-fuchsia-100"
+                      >
+                        Fullscreen
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsHomeMobileSettingsOpen(false);
+                          setPage("settings");
+                        }}
+                        className="mt-2 w-full rounded-xl border border-cyan-300/30 bg-cyan-400/10 px-3 py-2 text-left text-[11px] uppercase tracking-[0.18em] text-cyan-100"
+                      >
+                        Game Settings
+                      </button>
+                    </div>
+                  )}
+                </div>
                 {installPromptEvent && (
                   <button
                     type="button"
@@ -1222,14 +1299,45 @@ export default function App() {
                 <h2 className="text-2xl font-semibold text-cyan-100">Play Game</h2>
                 <p className="text-sm text-cyan-200/80">High score {highScore} | Player {settings.username || "Guest"}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="relative flex gap-2">
                 <button
                   type="button"
                   onClick={toggleFullscreen}
-                  className="rounded-full border border-cyan-300/60 bg-cyan-400/15 px-4 py-2 text-xs uppercase tracking-widest text-cyan-100"
+                  className="hidden rounded-full border border-cyan-300/60 bg-cyan-400/15 px-4 py-2 text-xs uppercase tracking-widest text-cyan-100 sm:inline-flex"
                 >
                   {isGameFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPlayMobileSettingsOpen((prev) => !prev)}
+                  className="rounded-full border border-cyan-300/60 bg-cyan-400/15 px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-cyan-100 sm:hidden"
+                >
+                  Settings
+                </button>
+                {isPlayMobileSettingsOpen && (
+                  <div className="absolute right-0 top-full z-20 mt-2 w-44 rounded-2xl border border-cyan-400/30 bg-black/90 p-2 shadow-[0_0_30px_rgba(34,211,238,0.16)] sm:hidden">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPlayMobileSettingsOpen(false);
+                        void toggleFullscreen();
+                      }}
+                      className="w-full rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-3 py-2 text-left text-[11px] uppercase tracking-[0.18em] text-cyan-100"
+                    >
+                      {isGameFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPlayMobileSettingsOpen(false);
+                        setPage("settings");
+                      }}
+                      className="mt-2 w-full rounded-xl border border-fuchsia-300/30 bg-fuchsia-400/10 px-3 py-2 text-left text-[11px] uppercase tracking-[0.18em] text-fuchsia-100"
+                    >
+                      Game Settings
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <RunnerGame
