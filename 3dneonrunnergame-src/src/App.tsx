@@ -24,6 +24,10 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
+interface DeviceNavigator extends Navigator {
+  deviceMemory?: number;
+}
+
 interface FullscreenDocument extends Document {
   webkitExitFullscreen?: () => Promise<void> | void;
   webkitFullscreenElement?: Element | null;
@@ -38,6 +42,27 @@ const STORAGE = {
   runHistory: "neonRunner.runHistory",
   settings: "neonRunner.settings",
 } as const;
+
+function getDefaultGraphicsQuality(): GameSettings["graphicsQuality"] {
+  if (typeof window === "undefined") {
+    return "high";
+  }
+
+  const coarsePointer = typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches;
+  const compactViewport = Math.min(window.innerWidth, window.innerHeight) <= 900;
+  const memoryConstrained = typeof navigator !== "undefined" && ((navigator as DeviceNavigator).deviceMemory ?? 8) <= 4;
+
+  return coarsePointer || compactViewport || memoryConstrained ? "medium" : "high";
+}
+
+function disposeMaterial(material: THREE.Material | THREE.Material[]) {
+  if (Array.isArray(material)) {
+    material.forEach((entry) => entry.dispose());
+    return;
+  }
+
+  material.dispose();
+}
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -207,6 +232,23 @@ function RunnerGame({
       return;
     }
 
+    const deviceNavigator = navigator as DeviceNavigator;
+    const coarsePointer = typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches;
+    const prefersReducedMotion =
+      typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const lowMemoryDevice = (deviceNavigator.deviceMemory ?? 8) <= 4;
+    const usePerformanceMode =
+      settingsRef.current.graphicsQuality !== "high" || coarsePointer || prefersReducedMotion || lowMemoryDevice || container.clientWidth <= 820;
+    const maxPixelRatio = usePerformanceMode ? 1 : 1.6;
+    const laneMarkerRows = usePerformanceMode ? 110 : 180;
+    const ghostTrailCount = usePerformanceMode ? 2 : 4;
+    const particleBurstCount = usePerformanceMode ? 8 : 16;
+    const maxObstacleCount = usePerformanceMode ? 7 : 12;
+    const maxCoinCount = usePerformanceMode ? 12 : 24;
+    const maxPowerupCount = usePerformanceMode ? 2 : 4;
+    const maxParticleCount = usePerformanceMode ? 18 : 40;
+    const uiRefreshInterval = usePerformanceMode ? 0.12 : 0.08;
+
     // Scene graph is kept minimal for stable framerate on mobile devices.
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x02030a, 38, 160);
@@ -215,7 +257,11 @@ function RunnerGame({
     camera.position.set(0, 6, 15);
     camera.lookAt(0, 2, -30);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: !usePerformanceMode,
+      alpha: true,
+      powerPreference: "high-performance",
+    });
     const resizeRenderer = () => {
       if (!mountRef.current) {
         return;
@@ -223,11 +269,12 @@ function RunnerGame({
       camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
     };
 
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, settingsRef.current.graphicsQuality === "high" ? 2 : 1.5));
-    renderer.shadowMap.enabled = true;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxPixelRatio));
+    renderer.shadowMap.enabled = !usePerformanceMode;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
@@ -236,9 +283,9 @@ function RunnerGame({
 
     const keyLight = new THREE.DirectionalLight(0x7b4dff, 1.3);
     keyLight.position.set(6, 16, 8);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
+    keyLight.castShadow = !usePerformanceMode;
+    keyLight.shadow.mapSize.width = usePerformanceMode ? 512 : 1024;
+    keyLight.shadow.mapSize.height = usePerformanceMode ? 512 : 1024;
     scene.add(keyLight);
 
     const rimLight = new THREE.PointLight(0x00d6ff, 2.2, 110);
@@ -251,11 +298,11 @@ function RunnerGame({
     );
     road.rotation.x = -Math.PI / 2;
     road.position.z = -165;
-    road.receiveShadow = true;
+    road.receiveShadow = !usePerformanceMode;
     scene.add(road);
 
     const laneMaterial = new THREE.MeshBasicMaterial({ color: 0x2d3de6, transparent: true, opacity: 0.85 });
-    for (let i = 0; i < 180; i += 1) {
+    for (let i = 0; i < laneMarkerRows; i += 1) {
       const marker = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 2.6), laneMaterial);
       marker.position.set(-3, 0.02, -i * 3.3);
       scene.add(marker);
@@ -269,7 +316,7 @@ function RunnerGame({
       new THREE.CapsuleGeometry(0.72, 1.2, 8, 14),
       new THREE.MeshStandardMaterial({ color: 0x19e7ff, emissive: 0x111155, metalness: 0.5, roughness: 0.2 }),
     );
-    playerBody.castShadow = true;
+    playerBody.castShadow = !usePerformanceMode;
     playerBody.position.y = 1.6;
     player.add(playerBody);
 
@@ -284,20 +331,31 @@ function RunnerGame({
 
     const ghostMaterial = new THREE.MeshBasicMaterial({ color: 0x64f5ff, transparent: true, opacity: 0.2 });
     const ghostTrail: THREE.Mesh[] = [];
-    for (let i = 0; i < 4; i += 1) {
+    for (let i = 0; i < ghostTrailCount; i += 1) {
       const ghost = new THREE.Mesh(new THREE.CapsuleGeometry(0.7, 1.2, 8, 12), ghostMaterial.clone());
       (ghost.material as THREE.MeshBasicMaterial).opacity = 0.16 - i * 0.03;
       scene.add(ghost);
       ghostTrail.push(ghost);
     }
 
-    const particleGeometry = new THREE.SphereGeometry(0.07, 8, 8);
+    const particleGeometry = new THREE.SphereGeometry(0.07, usePerformanceMode ? 5 : 8, usePerformanceMode ? 5 : 8);
     const particleMaterial = new THREE.MeshBasicMaterial({ color: 0x6af9ff });
     const particles: Array<{ mesh: THREE.Mesh; velocity: THREE.Vector3; life: number }> = [];
 
     const obstacles: Array<{ mesh: THREE.Mesh; width: number; height: number }> = [];
     const coinObjects: THREE.Mesh[] = [];
     const powerups: Array<{ mesh: THREE.Mesh; kind: "shield" | "boost" }> = [];
+
+    const disposeSpawnedMesh = (mesh: THREE.Mesh) => {
+      scene.remove(mesh);
+      mesh.geometry.dispose();
+      disposeMaterial(mesh.material);
+    };
+
+    const disposeParticleMesh = (mesh: THREE.Mesh) => {
+      scene.remove(mesh);
+      disposeMaterial(mesh.material);
+    };
 
     const state = {
       running: false,
@@ -326,14 +384,20 @@ function RunnerGame({
         new THREE.MeshStandardMaterial({ color: 0x8d2eff, emissive: 0x29034d, roughness: 0.35, metalness: 0.8 }),
       );
       obstacle.position.set(lane, height / 2, -120);
-      obstacle.castShadow = true;
+      obstacle.castShadow = !usePerformanceMode;
       scene.add(obstacle);
       obstacles.push({ mesh: obstacle, width, height });
+      while (obstacles.length > maxObstacleCount) {
+        const stale = obstacles.shift();
+        if (stale) {
+          disposeSpawnedMesh(stale.mesh);
+        }
+      }
     };
 
     const spawnCoinLine = () => {
       const lane = [-3, 0, 3][Math.floor(Math.random() * 3)];
-      const groupSize = 2 + Math.floor(Math.random() * 4);
+      const groupSize = usePerformanceMode ? 2 + Math.floor(Math.random() * 2) : 2 + Math.floor(Math.random() * 4);
       for (let i = 0; i < groupSize; i += 1) {
         const coin = new THREE.Mesh(
           new THREE.TorusGeometry(0.4, 0.11, 8, 18),
@@ -343,6 +407,12 @@ function RunnerGame({
         coin.position.set(lane, 1.4 + (i % 2) * 0.45, -90 - i * 4);
         scene.add(coin);
         coinObjects.push(coin);
+      }
+      while (coinObjects.length > maxCoinCount) {
+        const stale = coinObjects.shift();
+        if (stale) {
+          disposeSpawnedMesh(stale);
+        }
       }
     };
 
@@ -362,10 +432,16 @@ function RunnerGame({
       power.position.set(lane, 1.4, -110);
       scene.add(power);
       powerups.push({ mesh: power, kind });
+      while (powerups.length > maxPowerupCount) {
+        const stale = powerups.shift();
+        if (stale) {
+          disposeSpawnedMesh(stale.mesh);
+        }
+      }
     };
 
     const spawnBurst = (x: number, y: number, z: number, color: number) => {
-      for (let i = 0; i < 16; i += 1) {
+      for (let i = 0; i < particleBurstCount; i += 1) {
         const particle = new THREE.Mesh(particleGeometry, particleMaterial.clone());
         (particle.material as THREE.MeshBasicMaterial).color = new THREE.Color(color);
         particle.position.set(x, y, z);
@@ -377,16 +453,22 @@ function RunnerGame({
         );
         particles.push({ mesh: particle, velocity: spread, life: 0.6 + Math.random() * 0.5 });
       }
+      while (particles.length > maxParticleCount) {
+        const stale = particles.shift();
+        if (stale) {
+          disposeParticleMesh(stale.mesh);
+        }
+      }
     };
 
     const resetGame = () => {
-      [...obstacles].forEach((item) => scene.remove(item.mesh));
+      [...obstacles].forEach((item) => disposeSpawnedMesh(item.mesh));
       obstacles.length = 0;
-      [...coinObjects].forEach((coin) => scene.remove(coin));
+      [...coinObjects].forEach((coin) => disposeSpawnedMesh(coin));
       coinObjects.length = 0;
-      [...powerups].forEach((item) => scene.remove(item.mesh));
+      [...powerups].forEach((item) => disposeSpawnedMesh(item.mesh));
       powerups.length = 0;
-      [...particles].forEach((item) => scene.remove(item.mesh));
+      [...particles].forEach((item) => disposeParticleMesh(item.mesh));
       particles.length = 0;
 
       state.running = true;
@@ -566,7 +648,7 @@ function RunnerGame({
           const obstacle = obstacles[i];
           obstacle.mesh.position.z += worldVelocity;
           if (obstacle.mesh.position.z > 30) {
-            scene.remove(obstacle.mesh);
+            disposeSpawnedMesh(obstacle.mesh);
             obstacles.splice(i, 1);
             continue;
           }
@@ -577,7 +659,7 @@ function RunnerGame({
           if (dx < (obstacle.width + 1.2) / 2 && dz < 1.2 && playerHeight < obstacle.height + 0.45) {
             if (state.shield > 0) {
               state.shield = 0;
-              scene.remove(obstacle.mesh);
+              disposeSpawnedMesh(obstacle.mesh);
               obstacles.splice(i, 1);
               spawnBurst(player.position.x, player.position.y + 1.2, player.position.z, 0x6efaff);
               state.shake = 0.2;
@@ -595,7 +677,7 @@ function RunnerGame({
           coin.position.z += worldVelocity;
           coin.rotation.z += dt * 3.2;
           if (coin.position.z > 26) {
-            scene.remove(coin);
+            disposeSpawnedMesh(coin);
             coinObjects.splice(i, 1);
             continue;
           }
@@ -607,7 +689,7 @@ function RunnerGame({
             state.score += 24;
             playCoinSound();
             spawnBurst(coin.position.x, coin.position.y, coin.position.z, 0xffe36f);
-            scene.remove(coin);
+            disposeSpawnedMesh(coin);
             coinObjects.splice(i, 1);
           }
         }
@@ -618,7 +700,7 @@ function RunnerGame({
           powerup.mesh.rotation.x += dt * 1.4;
           powerup.mesh.rotation.y += dt * 2.2;
           if (powerup.mesh.position.z > 26) {
-            scene.remove(powerup.mesh);
+            disposeSpawnedMesh(powerup.mesh);
             powerups.splice(i, 1);
             continue;
           }
@@ -635,7 +717,7 @@ function RunnerGame({
               playTone(520, 0.21, "sawtooth", 0.16);
               spawnBurst(powerup.mesh.position.x, powerup.mesh.position.y, powerup.mesh.position.z, 0xff84f6);
             }
-            scene.remove(powerup.mesh);
+            disposeSpawnedMesh(powerup.mesh);
             powerups.splice(i, 1);
           }
         }
@@ -647,7 +729,7 @@ function RunnerGame({
           p.mesh.position.addScaledVector(p.velocity, dt);
           (p.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, p.life * 1.4);
           if (p.life <= 0) {
-            scene.remove(p.mesh);
+            disposeParticleMesh(p.mesh);
             particles.splice(i, 1);
           }
         }
@@ -662,7 +744,7 @@ function RunnerGame({
         camera.lookAt(player.position.x * 0.15, 2.2, -34);
 
         state.lastUI += dt;
-        if (state.lastUI > 0.08) {
+        if (state.lastUI > uiRefreshInterval) {
           state.lastUI = 0;
           finalScoreRef.current = Math.floor(state.score);
           finalCoinsRef.current = state.coins;
@@ -688,6 +770,8 @@ function RunnerGame({
         window.clearInterval(musicIntervalRef.current);
       }
       renderer.dispose();
+      particleGeometry.dispose();
+      particleMaterial.dispose();
       scene.traverse((obj: THREE.Object3D) => {
         if (obj instanceof THREE.Mesh) {
           obj.geometry.dispose();
@@ -905,7 +989,7 @@ export default function App() {
       soundEnabled: true,
       musicEnabled: true,
       vibrationEnabled: true,
-      graphicsQuality: "high",
+      graphicsQuality: getDefaultGraphicsQuality(),
       username: "Guest",
     }),
   );
