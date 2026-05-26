@@ -913,6 +913,7 @@ export default function App() {
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
   const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false);
+  const [pendingFullscreenEntry, setPendingFullscreenEntry] = useState(false);
   const gameShellRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -988,6 +989,19 @@ export default function App() {
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isFallbackFullscreen]);
+
+  useEffect(() => {
+    if (page !== "play" || !pendingFullscreenEntry) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      setPendingFullscreenEntry(false);
+      void toggleFullscreen();
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [page, pendingFullscreenEntry]);
 
   const handleRunComplete = (result: RunResult) => {
     setHighScore((prev) => Math.max(prev, result.score));
@@ -1095,7 +1109,10 @@ export default function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={toggleFullscreen}
+                  onClick={() => {
+                    setPage("play");
+                    setPendingFullscreenEntry(true);
+                  }}
                   className="rounded-full border border-fuchsia-300/80 bg-fuchsia-400/15 px-6 py-3 text-sm uppercase tracking-[0.2em] transition hover:bg-fuchsia-300/35"
                 >
                   {isGameFullscreen ? "Exit Fullscreen" : "Fullscreen"}
