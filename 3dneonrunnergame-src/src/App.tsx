@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject, type TouchEvent } from "react";
 import * as THREE from "three";
 
 type Page = "home" | "play" | "leaderboard" | "settings" | "about";
@@ -24,6 +24,15 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
+interface FullscreenDocument extends Document {
+  webkitExitFullscreen?: () => Promise<void> | void;
+  webkitFullscreenElement?: Element | null;
+}
+
+interface FullscreenElement extends HTMLDivElement {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+}
+
 const STORAGE = {
   highScore: "neonRunner.highScore",
   runHistory: "neonRunner.runHistory",
@@ -45,11 +54,17 @@ function readJson<T>(key: string, fallback: T): T {
 function RunnerGame({
   settings,
   highScore,
+  isFullscreen,
   onRunComplete,
+  onToggleFullscreen,
+  shellRef,
 }: {
   settings: GameSettings;
   highScore: number;
+  isFullscreen: boolean;
   onRunComplete: (result: RunResult) => void;
+  onToggleFullscreen: () => void;
+  shellRef: RefObject<HTMLDivElement | null>;
 }) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<"loading" | "start" | "playing" | "paused" | "gameover">("loading");
@@ -201,6 +216,15 @@ function RunnerGame({
     camera.lookAt(0, 2, -30);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    const resizeRenderer = () => {
+      if (!mountRef.current) {
+        return;
+      }
+      camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+    };
+
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, settingsRef.current.graphicsQuality === "high" ? 2 : 1.5));
     renderer.shadowMap.enabled = true;
@@ -476,15 +500,9 @@ function RunnerGame({
 
     window.addEventListener("keydown", onKeyDown);
 
-    const onResize = () => {
-      if (!mountRef.current) {
-        return;
-      }
-      camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
-    };
-    window.addEventListener("resize", onResize);
+    const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => resizeRenderer()) : null;
+    resizeObserver?.observe(container);
+    window.addEventListener("resize", resizeRenderer);
 
     const clock = new THREE.Clock();
     let animationFrame = 0;
@@ -663,7 +681,8 @@ function RunnerGame({
 
     const cleanup = () => {
       window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", resizeRenderer);
+      resizeObserver?.disconnect();
       window.cancelAnimationFrame(animationFrame);
       if (musicIntervalRef.current) {
         window.clearInterval(musicIntervalRef.current);
@@ -735,10 +754,17 @@ function RunnerGame({
   };
 
   return (
-    <div className="relative min-h-[75vh] w-full overflow-hidden rounded-2xl border border-cyan-400/30 bg-black/60 shadow-[0_0_45px_rgba(34,211,238,0.25)]">
+    <div
+      ref={shellRef}
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-50 h-[100dvh] w-screen overflow-hidden bg-black"
+          : "relative min-h-[75vh] w-full overflow-hidden rounded-2xl border border-cyan-400/30 bg-black/60 shadow-[0_0_45px_rgba(34,211,238,0.25)]"
+      }
+    >
       <div
         ref={mountRef}
-        className={`h-[75vh] w-full ${status === "playing" ? "motion-blur" : ""}`}
+        className={`${isFullscreen ? "h-[100dvh]" : "h-[75vh]"} w-full ${status === "playing" ? "motion-blur" : ""}`}
         onTouchStart={beginTouch}
         onTouchEnd={endTouch}
       />
@@ -750,6 +776,16 @@ function RunnerGame({
           <span>Coins {coins}</span>
           <span>Speed {speedText}</span>
         </div>
+      </div>
+
+      <div className="absolute right-3 top-3 z-20">
+        <button
+          type="button"
+          onClick={onToggleFullscreen}
+          className="rounded-full border border-cyan-300/70 bg-black/55 px-4 py-2 text-[11px] uppercase tracking-[0.2em] text-cyan-100 transition hover:bg-black/75"
+        >
+          {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+        </button>
       </div>
 
       <div className="pointer-events-none absolute left-0 right-0 top-12 mx-auto flex w-fit items-center gap-3 text-xs uppercase tracking-widest text-fuchsia-200/90">
@@ -875,6 +911,9 @@ export default function App() {
   );
   const [loginInput, setLoginInput] = useState(settings.username || "");
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isNativeFullscreen, setIsNativeFullscreen] = useState(false);
+  const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false);
+  const gameShellRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // Persist user settings so the game feels stateful across sessions.
@@ -904,6 +943,52 @@ export default function App() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  useEffect(() => {
+    const fullscreenDocument = document as FullscreenDocument;
+    const syncFullscreenState = () => {
+      const fullscreenElement = document.fullscreenElement ?? fullscreenDocument.webkitFullscreenElement ?? null;
+      setIsNativeFullscreen(fullscreenElement === gameShellRef.current);
+    };
+
+    syncFullscreenState();
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenState as EventListener);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreenState as EventListener);
+    };
+  }, []);
+
+  const isGameFullscreen = isNativeFullscreen || isFallbackFullscreen;
+
+  useEffect(() => {
+    if (!isGameFullscreen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isGameFullscreen]);
+
+  useEffect(() => {
+    if (!isFallbackFullscreen) {
+      return;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsFallbackFullscreen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isFallbackFullscreen]);
+
   const handleRunComplete = (result: RunResult) => {
     setHighScore((prev) => Math.max(prev, result.score));
     setRunHistory((prev) => [result, ...prev].slice(0, 20));
@@ -921,11 +1006,44 @@ export default function App() {
   };
 
   const toggleFullscreen = async () => {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
+    const target = gameShellRef.current as FullscreenElement | null;
+    const fullscreenDocument = document as FullscreenDocument;
+    const fullscreenElement = document.fullscreenElement ?? fullscreenDocument.webkitFullscreenElement ?? null;
+
+    if (!target) {
       return;
     }
-    await document.exitFullscreen();
+
+    if (fullscreenElement === target) {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+        return;
+      }
+      if (fullscreenDocument.webkitExitFullscreen) {
+        await fullscreenDocument.webkitExitFullscreen();
+        return;
+      }
+    }
+
+    if (isFallbackFullscreen) {
+      setIsFallbackFullscreen(false);
+      return;
+    }
+
+    try {
+      if (target.requestFullscreen) {
+        await target.requestFullscreen();
+        return;
+      }
+      if (target.webkitRequestFullscreen) {
+        await target.webkitRequestFullscreen();
+        return;
+      }
+    } catch {
+      // Some mobile browsers reject the fullscreen API even on user gesture, so we fall back to an app-shell overlay.
+    }
+
+    setIsFallbackFullscreen(true);
   };
 
   return (
@@ -980,7 +1098,7 @@ export default function App() {
                   onClick={toggleFullscreen}
                   className="rounded-full border border-fuchsia-300/80 bg-fuchsia-400/15 px-6 py-3 text-sm uppercase tracking-[0.2em] transition hover:bg-fuchsia-300/35"
                 >
-                  Fullscreen
+                  {isGameFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 </button>
                 {installPromptEvent && (
                   <button
@@ -1009,11 +1127,18 @@ export default function App() {
                   onClick={toggleFullscreen}
                   className="rounded-full border border-cyan-300/60 bg-cyan-400/15 px-4 py-2 text-xs uppercase tracking-widest text-cyan-100"
                 >
-                  Fullscreen
+                  {isGameFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 </button>
               </div>
             </div>
-            <RunnerGame settings={settings} highScore={highScore} onRunComplete={handleRunComplete} />
+            <RunnerGame
+              settings={settings}
+              highScore={highScore}
+              isFullscreen={isGameFullscreen}
+              onRunComplete={handleRunComplete}
+              onToggleFullscreen={toggleFullscreen}
+              shellRef={gameShellRef}
+            />
           </section>
         )}
 
