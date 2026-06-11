@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexora Protected Dashboard</title>
+    <meta
+      name="description"
+      content="Protected Firebase dashboard for authenticated Nexora users."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard-noise" aria-hidden="true"></div>
+    <div class="dashboard-page">
+      <header class="dashboard-header">
+        <div>
+          <p class="eyebrow">Protected Area</p>
+          <h1>Nexora Dashboard</h1>
+        </div>
+        <div class="header-actions">
+          <span class="status-pill" id="sessionStatus">Checking session...</span>
+          <button class="logout-button" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </header>
+
+      <main class="dashboard-layout">
+        <aside class="side-card">
+          <p class="eyebrow">Navigation</p>
+          <nav class="side-nav">
+            <a class="is-active" href="#overview">Overview</a>
+            <a href="#identity">Identity</a>
+            <a href="#security">Security</a>
+            <a href="#activity">Activity</a>
+          </nav>
+
+          <div class="side-note">
+            <strong>Firebase Auth connected</strong>
+            <p>Email/password login is controlling access to this dashboard.</p>
+          </div>
+        </aside>
+
+        <section class="main-panel">
+          <section class="hero-card" id="overview">
+            <div>
+              <p class="eyebrow">Live Access</p>
+              <h2>Welcome to your authenticated workspace</h2>
+              <p>
+                This dashboard only opens after successful Firebase email/password sign in.
+              </p>
+            </div>
+            <div class="hero-chip" id="welcomeChip">Signed in user</div>
+          </section>
+
+          <section class="metrics-grid" id="identity">
+            <article class="metric-card">
+              <span>User Email</span>
+              <strong id="userEmail">Loading...</strong>
+              <em>Primary sign-in identity</em>
+            </article>
+            <article class="metric-card">
+              <span>User ID</span>
+              <strong id="userUid">Loading...</strong>
+              <em>Firebase unique identifier</em>
+            </article>
+            <article class="metric-card">
+              <span>Email Verified</span>
+              <strong id="userVerified">Loading...</strong>
+              <em>Verification status</em>
+            </article>
+          </section>
+
+          <section class="details-grid">
+            <article class="detail-card" id="security">
+              <p class="eyebrow">Security</p>
+              <h3>Session details</h3>
+              <ul class="detail-list">
+                <li>
+                  <span>Provider</span>
+                  <strong id="userProvider">Loading...</strong>
+                </li>
+                <li>
+                  <span>Last Sign In</span>
+                  <strong id="userLastSignIn">Loading...</strong>
+                </li>
+                <li>
+                  <span>Account Created</span>
+                  <strong id="userCreatedAt">Loading...</strong>
+                </li>
+              </ul>
+            </article>
+
+            <article class="detail-card" id="activity">
+              <p class="eyebrow">Protected Notes</p>
+              <h3>What is connected</h3>
+              <div class="activity-list">
+                <div>
+                  <strong>Login page</strong>
+                  <p>Login page signs in with Firebase email/password.</p>
+                </div>
+                <div>
+                  <strong>Dashboard gate</strong>
+                  <p>Unauthorized users are redirected back to the login page.</p>
+                </div>
+                <div>
+                  <strong>Password safety</strong>
+                  <p>Password is used only for sign in and is never displayed here.</p>
+                </div>
+              </div>
+            </article>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>
